@@ -28,6 +28,18 @@ final class Fixtures {
 
     private Fixtures() {}
 
+    /** The XML of a comprobante with seal attributes filled in (not a real seal; for schema tests). */
+    static byte[] sealedXml(Comprobante cfdi) {
+        String xml = CfdiXml.defaults().toXml(cfdi);
+        String sealed = xml.replaceFirst(" Fecha=\"([^\"]+)\"",
+                " Fecha=\"$1\" Sello=\"c2VsbG8=\" NoCertificado=\"30001000000500003416\" Certificado=\"Y2VydA==\"");
+        return sealed.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+    }
+
+    static byte[] bytes(Comprobante cfdi) {
+        return CfdiXml.defaults().toBytes(cfdi);
+    }
+
     static ComprobanteBuilder base() {
         return Comprobante.builder()
                 .serie("A")
