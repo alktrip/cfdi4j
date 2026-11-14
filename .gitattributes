@@ -8,3 +8,6 @@ specs/sat/** -text -diff
 
 mvnw text eol=lf
 *.cmd text eol=crlf
+
+# Golden files are compared byte for byte.
+**/src/test/resources/golden/** -text

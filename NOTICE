@@ -9,4 +9,5 @@ uses SAT public test certificates in its test suite. Their origin, publication
 date and SHA-256 are listed in specs/SOURCES.md.
 
 This product depends on Saxon-HE (https://www.saxonica.com/), licensed under
-the Mozilla Public License, Version 2.0.
+the Mozilla Public License, Version 2.0, and on XML Resolver
+(https://xmlresolver.org/), licensed under the Apache License, Version 2.0.

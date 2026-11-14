@@ -109,6 +109,35 @@ public record Comprobante(
     }
 
     /**
+     * Returns a copy with {@code NoCertificado} and {@code Certificado} set, the first step of
+     * sealing: the cadena original covers {@code NoCertificado}. Any previous {@code Sello} is
+     * removed, because it no longer matches.
+     *
+     * @param noCertificado the certificate number (20 digits)
+     * @param certificado the certificate, DER encoded in Base64
+     * @return the copy
+     */
+    public Comprobante withCertificado(String noCertificado, String certificado) {
+        return new Comprobante(serie, folio, fecha, Optional.empty(), formaPago, Optional.of(noCertificado),
+                Optional.of(certificado), condicionesDePago, subTotal, descuento, moneda, tipoCambio, total, tipoDeComprobante,
+                exportacion, metodoPago, lugarExpedicion, confirmacion, informacionGlobal, cfdiRelacionados, emisor, receptor,
+                conceptos, impuestos, complemento, addenda);
+    }
+
+    /**
+     * Returns a copy with {@code Sello} set.
+     *
+     * @param sello the seal, Base64
+     * @return the copy
+     */
+    public Comprobante withSello(String sello) {
+        return new Comprobante(serie, folio, fecha, Optional.of(sello), formaPago, noCertificado, certificado,
+                condicionesDePago, subTotal, descuento, moneda, tipoCambio, total, tipoDeComprobante, exportacion, metodoPago,
+                lugarExpedicion, confirmacion, informacionGlobal, cfdiRelacionados, emisor, receptor, conceptos, impuestos,
+                complemento, addenda);
+    }
+
+    /**
      * Starts building a comprobante.
      *
      * @return a new builder

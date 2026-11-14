@@ -349,4 +349,24 @@ class ComprobanteBuilderTest {
         assertThat(cfdi.descuento()).map(BigDecimal::toString).contains("1.00");
         assertThat(cfdi.total()).hasToString("9.00");
     }
+
+    @Test
+    void sealingCopiesSetCertificateAndSealWithoutTouchingTheRest() {
+        Comprobante cfdi = base()
+                .concepto(c -> c.claveProdServ("01010101").cantidad("1").claveUnidad("ACT").descripcion("Servicio")
+                        .valorUnitario("1.00").objetoImp(ObjetoImp.NO_OBJETO))
+                .build();
+
+        Comprobante conCertificado = cfdi.withCertificado("30001000000500003416", "Y2VydA==");
+        Comprobante sellado = conCertificado.withSello("c2VsbG8=");
+
+        assertThat(conCertificado.noCertificado()).contains("30001000000500003416");
+        assertThat(conCertificado.certificado()).contains("Y2VydA==");
+        assertThat(conCertificado.sello()).isEmpty();
+        assertThat(sellado.sello()).contains("c2VsbG8=");
+        assertThat(sellado.withCertificado("30001000000500003416", "Y2VydA==").sello()).isEmpty();
+        assertThat(sellado.withCertificado("30001000000500003416", "Y2VydA==").withSello("c2VsbG8=")).isEqualTo(sellado);
+        assertThat(sellado.conceptos()).isEqualTo(cfdi.conceptos());
+        assertThat(sellado.total()).isEqualTo(cfdi.total());
+    }
 }
