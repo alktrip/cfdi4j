@@ -23,6 +23,11 @@
       <groupId>io.github.alktrip</groupId>
       <artifactId>cfdi4j-core</artifactId>
     </dependency>
+    <!-- XSLT 2.0 processor for the official cadena original stylesheet (the JDK only has XSLT 1.0). -->
+    <dependency>
+      <groupId>net.sf.saxon</groupId>
+      <artifactId>Saxon-HE</artifactId>
+    </dependency>
   </dependencies>
   <build>
     <resources>
