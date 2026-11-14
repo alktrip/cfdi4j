@@ -72,6 +72,7 @@ public final class ComprobanteBuilder {
     private final List<ConceptoBuilder> conceptos = new ArrayList<>();
     private Impuestos impuestos;
     private final List<Complemento> complemento = new ArrayList<>();
+    private Addenda addenda;
 
     ComprobanteBuilder() {}
 
@@ -369,6 +370,17 @@ public final class ComprobanteBuilder {
     }
 
     /**
+     * Sets the node {@code Addenda}.
+     *
+     * @param addenda the value
+     * @return this builder
+     */
+    public ComprobanteBuilder addenda(Addenda addenda) {
+        this.addenda = addenda;
+        return this;
+    }
+
+    /**
      * Builds the comprobante, deriving the amounts that were not set.
      *
      * @return the comprobante
@@ -458,7 +470,8 @@ public final class ComprobanteBuilder {
                 receptor.build(),
                 builtConceptos,
                 builtImpuestos,
-                complemento);
+                complemento,
+                Optional.ofNullable(addenda));
     }
 
     private int decimalesMoneda() {

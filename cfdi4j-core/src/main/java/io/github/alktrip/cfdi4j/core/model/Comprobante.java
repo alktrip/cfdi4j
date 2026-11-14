@@ -45,6 +45,7 @@ import java.util.Optional;
  * @param conceptos nodes {@code cfdi:Conceptos/cfdi:Concepto}
  * @param impuestos node {@code cfdi:Impuestos}
  * @param complemento children of {@code cfdi:Complemento}; empty when absent
+ * @param addenda node {@code cfdi:Addenda}
  */
 public record Comprobante(
         Optional<String> serie,
@@ -71,7 +72,8 @@ public record Comprobante(
         Receptor receptor,
         List<Concepto> conceptos,
         Optional<Impuestos> impuestos,
-        List<Complemento> complemento) {
+        List<Complemento> complemento,
+        Optional<Addenda> addenda) {
 
     /** Value of the {@code Version} attribute. */
     public static final String VERSION = "4.0";
@@ -103,6 +105,7 @@ public record Comprobante(
         conceptos = List.copyOf(conceptos);
         Objects.requireNonNull(impuestos, "impuestos");
         complemento = List.copyOf(complemento);
+        Objects.requireNonNull(addenda, "addenda");
     }
 
     /**
