@@ -12,7 +12,11 @@ Spanish. The library targets an international Java audience as well as Mexican d
 
 - **Domain vocabulary in Spanish, identical to Anexo 20 and the XML**: types, fields and builder
   methods use the official names (`Comprobante`, `Emisor`, `Receptor`, `Concepto`, `formaPago`,
-  `usoCfdi`, `regimenFiscalReceptor`, ...). No translation, no paraphrase.
+  `usoCFDI`, `regimenFiscalReceptor`, `UsoCFDI`, ...), with the capitalization of the XML. No
+  translation, no paraphrase.
+  - **Only exception: non-ASCII letters.** Java identifiers use the ASCII spelling (`Año` →
+    `anio`), because Error Prone rejects non-ASCII identifiers (`UnicodeInCode`) and they are hard
+    to type on many keyboards. The Javadoc names the exact XML attribute.
 - **Technical API in English**: infrastructure types and verbs (`builder`, `build`, `validate`,
   `seal`, `verify`, `ValidationResult`, `Violation`, `CatalogProvider`, exceptions).
 - **Javadoc, commit messages and ADRs in English.**
