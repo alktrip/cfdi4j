@@ -138,6 +138,32 @@ public record Comprobante(
     }
 
     /**
+     * Returns a copy with one more complement, for example the TimbreFiscalDigital added when the
+     * comprobante is stamped. The seal is kept: complements such as the timbre are not part of the
+     * cadena original of the comprobante, and verification reports it if one that is changes it.
+     *
+     * @param complemento the complement to append
+     * @return the copy
+     */
+    public Comprobante withComplemento(Complemento complemento) {
+        List<Complemento> all = new java.util.ArrayList<>(this.complemento);
+        all.add(Objects.requireNonNull(complemento, "complemento"));
+        return new Comprobante(serie, folio, fecha, sello, formaPago, noCertificado, certificado, condicionesDePago, subTotal,
+                descuento, moneda, tipoCambio, total, tipoDeComprobante, exportacion, metodoPago, lugarExpedicion, confirmacion,
+                informacionGlobal, cfdiRelacionados, emisor, receptor, conceptos, impuestos, all, addenda);
+    }
+
+    /**
+     * Returns the TimbreFiscalDigital, if the comprobante is stamped and the timbre was read with
+     * its mapper.
+     *
+     * @return the timbre
+     */
+    public Optional<TimbreFiscalDigital> timbreFiscalDigital() {
+        return complemento.stream().filter(TimbreFiscalDigital.class::isInstance).map(TimbreFiscalDigital.class::cast).findFirst();
+    }
+
+    /**
      * Starts building a comprobante.
      *
      * @return a new builder
