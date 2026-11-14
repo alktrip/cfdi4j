@@ -37,7 +37,7 @@ All tests that depend on validity periods use a **fixed `Clock`**, because SAT t
 
 The CFDI 4.0 examples of `eclipxe13/CfdiUtils` contain RFCs that are not SAT test data (a
 receptor RFC that is not in the SAT test list, a real PAC in the TimbreFiscalDigital, and an RFC
-that appears to belong to a real person). Rule 4 of the project forbids committing real RFCs or
+that appears to belong to a real person). This project never commits real RFCs or
 personal data, whatever the license. CfdiUtils also publishes no expected cadena original for
 CFDI 4.0.
 
