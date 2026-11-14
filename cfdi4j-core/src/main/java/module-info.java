@@ -5,4 +5,5 @@
  */
 module io.github.alktrip.cfdi4j.core {
     exports io.github.alktrip.cfdi4j.core;
+    exports io.github.alktrip.cfdi4j.core.catalog;
 }
