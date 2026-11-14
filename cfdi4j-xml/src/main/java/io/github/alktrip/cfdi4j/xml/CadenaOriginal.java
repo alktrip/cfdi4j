@@ -50,6 +50,8 @@ public final class CadenaOriginal {
         private static final CadenaOriginal INSTANCE = compile();
     }
 
+    static final String TFD_XSLT_URL = "http://www.sat.gob.mx/sitio_internet/cfd/TimbreFiscalDigital/cadenaoriginal_TFD_1_1.xslt";
+
     private static final System.Logger LOGGER = System.getLogger(CadenaOriginal.class.getName());
 
     private final Processor processor;
@@ -109,12 +111,17 @@ public final class CadenaOriginal {
      * @return a new instance
      */
     static CadenaOriginal compile() {
+        return compile(XSLT_URL);
+    }
+
+    /** Compiles one of the bundled stylesheets. */
+    static CadenaOriginal compile(String url) {
         Processor processor = new Processor(false);
         XsltCompiler compiler = processor.newXsltCompiler();
         compiler.setResourceResolver(CadenaOriginal::bundled);
         compiler.setErrorReporter(CadenaOriginal::report);
-        try (InputStream in = SatResources.open(XSLT_URL)) {
-            return new CadenaOriginal(processor, compiler.compile(new StreamSource(in, XSLT_URL)));
+        try (InputStream in = SatResources.open(url)) {
+            return new CadenaOriginal(processor, compiler.compile(new StreamSource(in, url)));
         } catch (SaxonApiException e) {
             throw new Cfdi4jException("Cannot compile the bundled cadena original stylesheet", e);
         } catch (IOException e) {

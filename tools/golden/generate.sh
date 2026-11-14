@@ -33,3 +33,12 @@ for xml in "$OUT"/*.xml; do
   openssl dgst -sha256 -sign "$TMP/key.pem" "$name.cadena.txt" | base64 -w0 > "$name.sello"
   echo "$(basename "$name"): $(cat "$name.cadena.sha256")"
 done
+
+# TimbreFiscalDigital 1.1: a standalone timbre (fictitious UUID and seals) and its cadena original
+# from the official cadenaoriginal_TFD_1_1.xslt, fetched from the SAT.
+TFD_OUT=cfdi4j-xml/src/test/resources/golden/tfd
+TFD_XSLT=http://www.sat.gob.mx/sitio_internet/cfd/TimbreFiscalDigital/cadenaoriginal_TFD_1_1.xslt
+mkdir -p "$TFD_OUT"
+printf '%s' '<?xml version="1.0" encoding="UTF-8"?><tfd:TimbreFiscalDigital xmlns:tfd="http://www.sat.gob.mx/TimbreFiscalDigital" Version="1.1" UUID="5FB2822E-396D-4725-8521-CDC4BDD20CCF" FechaTimbrado="2026-11-14T10:31:00" RfcProvCertif="KIJ0906199R1" Leyenda="Leyenda  de   prueba" SelloCFD="abc" NoCertificadoSAT="30001000000500003456" SelloSAT="def"/>' > "$TFD_OUT/timbre.xml"
+java -cp "$SAXON" net.sf.saxon.Transform -s:"$TFD_OUT/timbre.xml" -xsl:"$TFD_XSLT" -o:"$TFD_OUT/timbre.cadena.txt"
+echo "timbre: $(cat "$TFD_OUT/timbre.cadena.txt")"

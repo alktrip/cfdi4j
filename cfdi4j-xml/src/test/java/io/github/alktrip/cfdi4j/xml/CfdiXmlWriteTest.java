@@ -59,7 +59,10 @@ class CfdiXmlWriteTest {
 
         assertThat(out).contains("http://www.sat.gob.mx/TimbreFiscalDigital http://www.sat.gob.mx/sitio_internet/cfd/TimbreFiscalDigital/TimbreFiscalDigitalv11.xsd")
                 .contains("http://www.sat.gob.mx/iedu http://www.sat.gob.mx/sitio_internet/cfd/iedu/iedu.xsd")
-                .contains("<cfdi:Complemento><tfd:TimbreFiscalDigital xmlns:tfd=\"http://www.sat.gob.mx/TimbreFiscalDigital\"")
+                .contains("xmlns:tfd=\"http://www.sat.gob.mx/TimbreFiscalDigital\" xsi:schemaLocation=")
+                .contains("<cfdi:Complemento><tfd:TimbreFiscalDigital Version=\"1.1\" UUID=\"5FB2822E-396D-4725-8521-CDC4BDD20CCF\" "
+                        + "FechaTimbrado=\"2026-11-14T10:31:00\" RfcProvCertif=\"KIJ0906199R1\" SelloCFD=\"abc\" "
+                        + "NoCertificadoSAT=\"30001000000500003456\" SelloSAT=\"def\"/></cfdi:Complemento>")
                 .contains("<cfdi:ComplementoConcepto><iedu:instEducativas xmlns:iedu=\"http://www.sat.gob.mx/iedu\"")
                 .contains("<cfdi:Addenda><ext:Pedido xmlns:ext=\"http://example.com/ext\" Numero=\"42\"><ext:Nota>texto</ext:Nota></ext:Pedido>"
                         + "<otra xmlns=\"http://example.com/otra\"></otra></cfdi:Addenda>")

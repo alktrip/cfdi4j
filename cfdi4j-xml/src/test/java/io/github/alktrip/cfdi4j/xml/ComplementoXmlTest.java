@@ -157,6 +157,7 @@ class ComplementoXmlTest {
         CfdiXml xml = CfdiXml.builder().register(new FakeXml()).register(new OtherXml()).build();
 
         assertThat(xml.complementNamespaces()).containsExactly("http://example.com/a-first", "http://example.com/fake");
-        assertThat(CfdiXml.defaults().complementNamespaces()).isEmpty();
+        assertThat(CfdiXml.defaults().complementNamespaces()).containsExactly("http://www.sat.gob.mx/TimbreFiscalDigital");
+        assertThat(CfdiXml.builder().build().complementNamespaces()).isEmpty();
     }
 }

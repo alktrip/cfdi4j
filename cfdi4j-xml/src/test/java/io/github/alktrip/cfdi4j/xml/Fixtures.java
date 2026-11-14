@@ -63,6 +63,12 @@ final class Fixtures {
                 .build();
     }
 
+    /** A timbre with the shape of a real one; the seals are not real. */
+    static io.github.alktrip.cfdi4j.core.model.TimbreFiscalDigital timbre() {
+        return new io.github.alktrip.cfdi4j.core.model.TimbreFiscalDigital("1.1", "5FB2822E-396D-4725-8521-CDC4BDD20CCF",
+                LocalDateTime.of(2026, 11, 14, 10, 31, 0), "KIJ0906199R1", Optional.empty(), "abc", "30001000000500003456", "def");
+    }
+
     /** Uses every node and optional attribute of cfdv40.xsd. */
     static Comprobante complete() {
         return base()
@@ -93,11 +99,7 @@ final class Fixtures {
                                 .descripcion("Parte").valorUnitario("5.00").importe("10.00").informacionAduanera("21  47  3807  8003832")))
                 .concepto(c -> c.claveProdServ("01010101").cantidad("3").claveUnidad("H87").descripcion("Pieza")
                         .valorUnitario("0.333333").objetoImp(ObjetoImp.NO_OBJETO))
-                .complemento(new ComplementoNoModelado(TFD_NS,
-                        "<tfd:TimbreFiscalDigital xmlns:tfd=\"" + TFD_NS + "\" Version=\"1.1\" "
-                                + "UUID=\"5FB2822E-396D-4725-8521-CDC4BDD20CCF\" FechaTimbrado=\"2026-11-14T10:31:00\" "
-                                + "RfcProvCertif=\"KIJ0906199R1\" SelloCFD=\"abc\" NoCertificadoSAT=\"30001000000500003456\" SelloSAT=\"def\"/>",
-                        Optional.of("http://www.sat.gob.mx/sitio_internet/cfd/TimbreFiscalDigital/TimbreFiscalDigitalv11.xsd")))
+                .complemento(timbre())
                 .addenda(new Addenda("<ext:Pedido xmlns:ext=\"http://example.com/ext\" Numero=\"42\"><ext:Nota>texto</ext:Nota></ext:Pedido>"
                         + "<otra xmlns=\"http://example.com/otra\"/>"))
                 .build();

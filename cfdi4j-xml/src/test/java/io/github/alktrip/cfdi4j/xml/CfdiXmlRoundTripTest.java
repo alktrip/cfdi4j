@@ -27,10 +27,11 @@ class CfdiXmlRoundTripTest {
 
         // Opaque fragments may be re-serialized with another attribute order; everything else is equal.
         assertThat(withoutFragments(parsed)).isEqualTo(withoutFragments(cfdi));
-        assertThat(parsed.complemento()).singleElement().isInstanceOfSatisfying(ComplementoNoModelado.class, c -> {
-            assertThat(c.namespace()).isEqualTo(Fixtures.TFD_NS);
-            assertThat(c.schemaLocation()).contains("http://www.sat.gob.mx/sitio_internet/cfd/TimbreFiscalDigital/TimbreFiscalDigitalv11.xsd");
-            assertThat(c.xml()).contains("xmlns:tfd=\"" + Fixtures.TFD_NS + "\"").contains("UUID=\"5FB2822E-396D-4725-8521-CDC4BDD20CCF\"");
+        assertThat(parsed.complemento()).containsExactly(Fixtures.timbre());
+        assertThat(parsed.timbreFiscalDigital()).contains(Fixtures.timbre());
+        assertThat(parsed.conceptos().get(0).complementoConcepto()).singleElement().isInstanceOfSatisfying(ComplementoNoModelado.class, c -> {
+            assertThat(c.namespace()).isEqualTo("http://www.sat.gob.mx/iedu");
+            assertThat(c.schemaLocation()).contains("http://www.sat.gob.mx/sitio_internet/cfd/iedu/iedu.xsd");
         });
         assertThat(parsed.addenda().orElseThrow().contenido()).contains("<ext:Nota>texto</ext:Nota>").contains("http://example.com/otra");
         // Writing the parsed model again is stable.
@@ -67,6 +68,6 @@ class CfdiXmlRoundTripTest {
                         x.cantidad(), x.claveUnidad(), x.unidad(), x.descripcion(), x.valorUnitario(), x.importe(), x.descuento(),
                         x.objetoImp(), x.impuestos(), x.aCuentaTerceros(), x.informacionAduanera(), x.cuentaPredial(),
                         java.util.List.of(), x.parte())).toList(),
-                c.impuestos(), java.util.List.of(), java.util.Optional.empty());
+                c.impuestos(), c.complemento(), java.util.Optional.empty());
     }
 }

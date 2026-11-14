@@ -15,4 +15,6 @@ module io.github.alktrip.cfdi4j.xml {
     exports io.github.alktrip.cfdi4j.xml.spi;
 
     uses io.github.alktrip.cfdi4j.xml.spi.ComplementoXml;
+    provides io.github.alktrip.cfdi4j.xml.spi.ComplementoXml with
+            io.github.alktrip.cfdi4j.xml.internal.TimbreFiscalDigitalXml;
 }

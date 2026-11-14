@@ -65,10 +65,19 @@ class CfdiXmlParseTest {
         assertThat(cfdi.subTotal()).hasToString("1000");
         assertThat(cfdi.total()).hasToString("1160.000000");
         assertThat(cfdi.conceptos().get(0).cantidad()).hasToString("1.000000");
-        assertThat(cfdi.complemento()).singleElement().isInstanceOfSatisfying(ComplementoNoModelado.class, tfd -> {
-            assertThat(tfd.namespace()).isEqualTo(Fixtures.TFD_NS);
+        assertThat(cfdi.timbreFiscalDigital()).hasValueSatisfying(tfd -> {
+            assertThat(tfd.uuid()).isEqualTo("5FB2822E-396D-4725-8521-CDC4BDD20CCF");
+            assertThat(tfd.fechaTimbrado()).isEqualTo(java.time.LocalDateTime.of(2026, 11, 14, 10, 31, 0));
+            assertThat(tfd.rfcProvCertif()).isEqualTo("KIJ0906199R1");
+            assertThat(tfd.leyenda()).isEmpty();
+            assertThat(tfd.selloCFD()).isEqualTo("c2VsbG8=");
+            assertThat(tfd.noCertificadoSAT()).isEqualTo("30001000000500003456");
+            assertThat(tfd.selloSAT()).isEqualTo("c2F0");
+        });
+        // Without the TFD mapper the same element is kept as a self-contained fragment.
+        Comprobante opaque = CfdiXml.builder().build().parse(STAMPED);
+        assertThat(opaque.complemento()).singleElement().isInstanceOfSatisfying(ComplementoNoModelado.class, tfd -> {
             assertThat(tfd.schemaLocation()).contains("http://www.sat.gob.mx/sitio_internet/cfd/TimbreFiscalDigital/TimbreFiscalDigitalv11.xsd");
-            // Self-contained although the prefix was declared on the root only.
             assertThat(tfd.xml()).startsWith("<tfd:TimbreFiscalDigital").contains("xmlns:tfd=\"http://www.sat.gob.mx/TimbreFiscalDigital\"");
         });
         assertThat(cfdi.addenda().orElseThrow().contenido()).isEqualTo("<x:Dato xmlns:x=\"http://example.com/x\">uno</x:Dato>");
@@ -148,6 +157,16 @@ class CfdiXmlParseTest {
         assertThatThrownBy(() -> xml.parse(STAMPED.replace("<tfd:TimbreFiscalDigital ", "<Timbre ").replace("SelloSAT=\"c2F0\"/>", "SelloSAT=\"c2F0\"/>")
                 .replaceAll("<Timbre [^>]*/>", "<Timbre/>")))
                 .hasMessageContaining("complement element without namespace");
+    }
+
+    @Test
+    void timbreFieldsAreCheckedLikeAnyOtherNode() {
+        assertThatThrownBy(() -> xml.parse(STAMPED.replace("<tfd:TimbreFiscalDigital ", "<tfd:TimbreFiscalDigital Otro=\"x\" ")))
+                .hasMessageContaining("tfd:TimbreFiscalDigital[1]/@Otro").hasMessageContaining("unexpected attribute");
+        assertThatThrownBy(() -> xml.parse(STAMPED.replace("<tfd:TimbreFiscalDigital ", "<tfd:Otro ")))
+                .hasMessageContaining("expected tfd:TimbreFiscalDigital");
+        assertThat(xml.parse(STAMPED.replace("<tfd:TimbreFiscalDigital ", "<tfd:TimbreFiscalDigital Leyenda=\"Texto\" "))
+                .timbreFiscalDigital().orElseThrow().leyenda()).contains("Texto");
     }
 
     @Test
