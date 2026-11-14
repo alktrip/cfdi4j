@@ -50,3 +50,16 @@ jobs:
         run: ./mvnw -B -ntp -P generate-catalogs -pl tools/catalog-generator -am verify
       - name: Fail if regeneration changed anything
         run: git diff --exit-code
+
+  external-vectors:
+    name: Third-party vectors (ADR 0005)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Verify against downloaded, hash-pinned vectors
+        run: ./mvnw -B -ntp -P external-vectors verify
