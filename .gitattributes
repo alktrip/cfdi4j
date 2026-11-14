@@ -1,0 +1,10 @@
+* text=auto eol=lf
+
+# Official SAT artifacts are stored byte-for-byte (CRLF, BOM); their SHA-256 is checked by tests.
+specs/sat/** -text -diff
+*.cer binary
+*.key binary
+*.jar binary
+
+mvnw text eol=lf
+*.cmd text eol=crlf

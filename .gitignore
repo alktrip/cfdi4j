@@ -1,0 +1,14 @@
+# Build output
+target/
+
+# Reference documents downloaded by specs/fetch-sources.sh (see specs/SOURCES.md)
+specs/downloads/
+
+# IDE and OS files
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+.DS_Store

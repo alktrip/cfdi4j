@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- No parent on purpose: a BOM must not inherit the build's dependency management. -->
+  <groupId>io.github.alktrip</groupId>
+  <artifactId>cfdi4j-bom</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>cfdi4j BOM</name>
+  <description>Bill of materials for the cfdi4j modules.</description>
+  <url>https://github.com/alktrip/cfdi4j</url>
+
+  <licenses>
+    <license>
+      <name>Apache-2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>alktrip</id>
+      <name>Alejandro Catrip</name>
+      <url>https://github.com/alktrip</url>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:https://github.com/alktrip/cfdi4j.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/alktrip/cfdi4j.git</developerConnection>
+    <url>https://github.com/alktrip/cfdi4j</url>
+    <tag>HEAD</tag>
+  </scm>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.github.alktrip</groupId>
+        <artifactId>cfdi4j-core</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.alktrip</groupId>
+        <artifactId>cfdi4j-xml</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.alktrip</groupId>
+        <artifactId>cfdi4j-crypto</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.alktrip</groupId>
+        <artifactId>cfdi4j-pagos20</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.alktrip</groupId>
+        <artifactId>cfdi4j-catalogs</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.alktrip</groupId>
+        <artifactId>cfdi4j</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+</project>

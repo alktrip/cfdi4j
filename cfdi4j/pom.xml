@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>io.github.alktrip</groupId>
+    <artifactId>cfdi4j-parent</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>cfdi4j</artifactId>
+  <name>cfdi4j facade</name>
+  <description>Entry point to validate, seal and verify CFDI 4.0 documents.</description>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.github.alktrip</groupId>
+      <artifactId>cfdi4j-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.github.alktrip</groupId>
+      <artifactId>cfdi4j-xml</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.github.alktrip</groupId>
+      <artifactId>cfdi4j-crypto</artifactId>
+    </dependency>
+  </dependencies></project>
