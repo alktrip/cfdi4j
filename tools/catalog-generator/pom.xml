@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>io.github.alktrip</groupId>
+    <artifactId>cfdi4j-parent</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>cfdi4j-catalog-generator</artifactId>
+  <name>cfdi4j catalog generator</name>
+  <description>Build-time tool: generates catalog sources from the official SAT catalog file. Not published.</description>
+
+  <properties>
+    <maven.install.skip>true</maven.install.skip>
+    <maven.deploy.skip>true</maven.deploy.skip>
+    <catalog.file>${maven.multiModuleProjectDirectory}/specs/downloads/catCFDI_V_4_20261106.xls</catalog.file>
+    <catalog.names>${project.basedir}/catalog-names.yaml</catalog.names>
+    <catalog.output>${maven.multiModuleProjectDirectory}/cfdi4j-core/src/main/java</catalog.output>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi</artifactId>
+      <version>${poi.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.yaml</groupId>
+      <artifactId>snakeyaml</artifactId>
+      <version>${snakeyaml.version}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <systemPropertyVariables>
+            <log4j2.loggerContextFactory>org.apache.logging.log4j.simple.SimpleLoggerContextFactory</log4j2.loggerContextFactory>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>generate-catalogs</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>java</goal>
+            </goals>
+            <configuration>
+              <mainClass>io.github.alktrip.cfdi4j.tools.catalogs.CatalogGenerator</mainClass>
+              <systemProperties>
+                <!-- POI logs through Log4j API; no provider is needed for this tool. -->
+                <systemProperty>
+                  <key>log4j2.loggerContextFactory</key>
+                  <value>org.apache.logging.log4j.simple.SimpleLoggerContextFactory</value>
+                </systemProperty>
+              </systemProperties>
+              <arguments>
+                <argument>${catalog.file}</argument>
+                <argument>${catalog.names}</argument>
+                <argument>${catalog.output}</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

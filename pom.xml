@@ -85,6 +85,11 @@
     <jacoco-plugin.version>0.8.16</jacoco-plugin.version>
     <gpg-plugin.version>3.2.8</gpg-plugin.version>
     <central-publishing-plugin.version>0.12.0</central-publishing-plugin.version>
+    <exec-plugin.version>3.7.0</exec-plugin.version>
+
+    <!-- Build-time only (tools/catalog-generator) -->
+    <poi.version>6.0.0</poi.version>
+    <snakeyaml.version>2.7</snakeyaml.version>
   </properties>
 
   <dependencyManagement>
@@ -157,6 +162,11 @@
       <artifactId>assertj-core</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>net.jqwik</groupId>
+      <artifactId>jqwik</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -226,6 +236,11 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-gpg-plugin</artifactId>
           <version>${gpg-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>exec-maven-plugin</artifactId>
+          <version>${exec-plugin.version}</version>
         </plugin>
         <plugin>
           <groupId>org.sonatype.central</groupId>
@@ -331,4 +346,18 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <!--
+      Regenerates the catalog sources in cfdi4j-core from the official SAT file (ADR 0008).
+      Not part of the default build. Run specs/fetch-sources.sh first, then:
+        ./mvnw -P generate-catalogs -pl tools/catalog-generator -am process-classes
+    -->
+    <profile>
+      <id>generate-catalogs</id>
+      <modules>
+        <module>tools/catalog-generator</module>
+      </modules>
+    </profile>
+  </profiles>
 </project>

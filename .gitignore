@@ -12,3 +12,6 @@ specs/downloads/
 .project
 .settings/
 .DS_Store
+
+# jqwik failure database
+.jqwik-database
