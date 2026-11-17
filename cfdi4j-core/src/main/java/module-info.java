@@ -12,6 +12,8 @@ module io.github.alktrip.cfdi4j.core {
     exports io.github.alktrip.cfdi4j.core.model;
     exports io.github.alktrip.cfdi4j.core.validation;
 
+    uses io.github.alktrip.cfdi4j.core.validation.RuleSet;
+
     // Shared helpers for the other cfdi4j modules only; not public API.
     exports io.github.alktrip.cfdi4j.core.internal to
             io.github.alktrip.cfdi4j.xml,

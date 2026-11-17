@@ -5,7 +5,12 @@ import io.github.alktrip.cfdi4j.core.catalog.CatalogProvider;
 import io.github.alktrip.cfdi4j.core.internal.Messages;
 import io.github.alktrip.cfdi4j.core.model.Comprobante;
 import java.time.Clock;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -20,6 +25,7 @@ import java.util.Objects;
 public final class Cfdi40Validator {
 
     private final List<Rule> rules;
+    private final Map<String, MatrizErrores.Entrada> oficiales;
     private final Clock clock;
     private final CatalogProvider catalogs;
     private final TaxpayerRegistry taxpayers;
@@ -27,7 +33,16 @@ public final class Cfdi40Validator {
     private final Messages messages;
 
     private Cfdi40Validator(Builder b) {
-        this.rules = List.copyOf(b.rules);
+        List<RuleSet> sets = b.ruleSets != null ? b.ruleSets : discover();
+        List<Rule> all = new ArrayList<>(b.rules);
+        Map<String, MatrizErrores.Entrada> entries = new HashMap<>();
+        MatrizErrores.entradas().forEach(e -> entries.put(e.codigo(), e));
+        for (RuleSet set : sets) {
+            all.addAll(set.rules());
+            set.matriz().forEach(e -> entries.putIfAbsent(e.codigo(), e));
+        }
+        this.rules = List.copyOf(all);
+        this.oficiales = Map.copyOf(entries);
         this.clock = b.clock;
         this.catalogs = b.catalogs;
         this.taxpayers = b.taxpayers;
@@ -35,8 +50,15 @@ public final class Cfdi40Validator {
         this.messages = Messages.load(name -> Cfdi40Validator.class.getResourceAsStream(name), "messages", b.locale);
     }
 
+    private static List<RuleSet> discover() {
+        List<RuleSet> sets = new ArrayList<>(ServiceLoader.load(RuleSet.class).stream().map(ServiceLoader.Provider::get).toList());
+        sets.sort(Comparator.comparing(RuleSet::name));
+        return sets;
+    }
+
     /**
-     * Starts a configuration with every rule, the system UTC clock, no ports and Spanish messages.
+     * Starts a configuration with every rule (CFDI 4.0 and the {@link RuleSet} providers found
+     * with {@link ServiceLoader}), the system UTC clock, no ports and Spanish messages.
      *
      * @return a builder
      */
@@ -45,7 +67,7 @@ public final class Cfdi40Validator {
     }
 
     /**
-     * Returns the rules applied, in order.
+     * Returns the rules applied, in order: CFDI 4.0 first, then each rule set.
      *
      * @return the rules
      */
@@ -75,7 +97,8 @@ public final class Cfdi40Validator {
     }
 
     private ValidationResult run(Comprobante comprobante, CertificateInfo certificate) {
-        ValidationContext context = new ValidationContext(comprobante, clock, catalogs, taxpayers, certificateStatus, certificate, messages);
+        ValidationContext context = new ValidationContext(comprobante, clock, catalogs, taxpayers, certificateStatus, certificate, messages,
+                oficiales);
         for (Rule rule : rules) {
             rule.check(context);
         }
@@ -85,6 +108,7 @@ public final class Cfdi40Validator {
     /** Configures a {@link Cfdi40Validator}. */
     public static final class Builder {
         private List<Rule> rules = Cfdi40Rules.all();
+        private List<RuleSet> ruleSets;
         private Clock clock = Clock.systemUTC();
         private CatalogProvider catalogs;
         private TaxpayerRegistry taxpayers;
@@ -94,7 +118,18 @@ public final class Cfdi40Validator {
         private Builder() {}
 
         /**
-         * Replaces the rules, for example to add custom ones to {@link Cfdi40Rules#all()}.
+         * Uses these rule sets instead of the ones found with {@link ServiceLoader}.
+         *
+         * @param ruleSets the rule sets, applied in the given order
+         * @return this builder
+         */
+        public Builder ruleSets(List<RuleSet> ruleSets) {
+            this.ruleSets = List.copyOf(ruleSets);
+            return this;
+        }
+
+        /**
+         * Replaces the CFDI 4.0 rules, for example to add custom ones to {@link Cfdi40Rules#all()}.
          *
          * @param rules the rules
          * @return this builder

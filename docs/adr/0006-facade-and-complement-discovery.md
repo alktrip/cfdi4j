@@ -29,3 +29,13 @@ not know about at compile time.
 
 - Adding a complement is adding a jar; no change to base modules.
 - Users who only need the model and rules depend on `cfdi4j-core` alone.
+
+## Implementation notes (2026-11-17)
+
+- **Rules of a complement.** A module contributes its rules through the SPI
+  `io.github.alktrip.cfdi4j.core.validation.RuleSet` (`name()`, `rules()`, `matriz()`), discovered
+  with `ServiceLoader` and applied after the CFDI 4.0 rules in order of `name()`.
+  `Cfdi40Validator.Builder.ruleSets(List)` replaces discovery. `matriz()` gives the official
+  messages of the codes the set reports, so the core does not need to know other matrices.
+- **Pagos 2.0** (`cfdi4j-pagos20`) is the first provider of both SPIs: `ComplementoXml` for the
+  node `pago20:Pagos` and `RuleSet` for the CRP matrix (`docs/rules-coverage-pagos20.md`).

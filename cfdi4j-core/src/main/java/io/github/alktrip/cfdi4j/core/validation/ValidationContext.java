@@ -8,6 +8,7 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -27,9 +28,11 @@ public final class ValidationContext {
     private final Messages messages;
     private final List<Violation> violations = new ArrayList<>();
     private final Set<String> notVerifiedOnce = new HashSet<>();
+    private final Map<String, MatrizErrores.Entrada> oficiales;
 
     ValidationContext(Comprobante comprobante, Clock clock, CatalogProvider catalogs, TaxpayerRegistry taxpayers,
-            CertificateStatusProvider certificateStatus, CertificateInfo certificate, Messages messages) {
+            CertificateStatusProvider certificateStatus, CertificateInfo certificate, Messages messages,
+            Map<String, MatrizErrores.Entrada> oficiales) {
         this.comprobante = Objects.requireNonNull(comprobante, "comprobante");
         this.clock = clock;
         this.catalogs = catalogs;
@@ -37,6 +40,7 @@ public final class ValidationContext {
         this.certificateStatus = certificateStatus;
         this.certificate = certificate;
         this.messages = messages;
+        this.oficiales = oficiales;
     }
 
     /**
@@ -138,7 +142,7 @@ public final class ValidationContext {
     }
 
     private String message(String code, String detailKey, Object... args) {
-        Optional<MatrizErrores.Entrada> oficial = MatrizErrores.of(code);
+        Optional<MatrizErrores.Entrada> oficial = Optional.ofNullable(oficiales.get(code));
         String base = oficial.isPresent() ? oficial.get().mensaje() : messages.format(code, args);
         return detailKey == null ? base : base + " " + messages.format(detailKey, args);
     }
