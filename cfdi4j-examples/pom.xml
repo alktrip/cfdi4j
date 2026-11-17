@@ -27,4 +27,8 @@
       <groupId>io.github.alktrip</groupId>
       <artifactId>cfdi4j-pagos20</artifactId>
     </dependency>
+    <dependency>
+      <groupId>io.github.alktrip</groupId>
+      <artifactId>cfdi4j-catalogs</artifactId>
+    </dependency>
   </dependencies></project>
