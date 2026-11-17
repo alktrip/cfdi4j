@@ -7,6 +7,7 @@ public final class CfdiParseException extends Cfdi4jException {
 
     private static final long serialVersionUID = 1L;
 
+    /** XPath-like location of the problem; empty if unknown. */
     private final String location;
 
     /**

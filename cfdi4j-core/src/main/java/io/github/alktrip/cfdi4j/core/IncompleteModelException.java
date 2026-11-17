@@ -12,6 +12,7 @@ public final class IncompleteModelException extends Cfdi4jException {
 
     private static final long serialVersionUID = 1L;
 
+    /** Locations of the missing values. */
     @SuppressWarnings("serial") // List.copyOf returns a serializable list
     private final List<String> missing;
 
