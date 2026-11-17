@@ -19,91 +19,91 @@ public final class FormaPago extends CatalogKey {
 
     /** {@code 01}: Efectivo. */
     public static final FormaPago EFECTIVO =
-            new FormaPago("01", "Efectivo", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.NO);
+            new FormaPago("01", "Efectivo", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.NO, null, null);
 
     /** {@code 02}: Cheque nominativo. */
     public static final FormaPago CHEQUE_NOMINATIVO =
-            new FormaPago("02", "Cheque nominativo", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.SI);
+            new FormaPago("02", "Cheque nominativo", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.SI, "[0-9]{11}|[0-9]{18}", "[0-9]{10,11}|[0-9]{15,16}|[0-9]{18}|[A-Z0-9_]{10,50}");
 
     /** {@code 03}: Transferencia electrónica de fondos. */
     public static final FormaPago TRANSFERENCIA =
-            new FormaPago("03", "Transferencia electrónica de fondos", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.SI);
+            new FormaPago("03", "Transferencia electrónica de fondos", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.SI, "[0-9]{10}|[0-9]{16}|[0-9]{18}", "[0-9]{10}|[0-9]{18}");
 
     /** {@code 04}: Tarjeta de crédito. */
     public static final FormaPago TARJETA_CREDITO =
-            new FormaPago("04", "Tarjeta de crédito", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.SI);
+            new FormaPago("04", "Tarjeta de crédito", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.SI, "[0-9]{16}", "[0-9]{10,11}|[0-9]{15,16}|[0-9]{18}|[A-Z0-9_]{10,50}");
 
     /** {@code 05}: Monedero electrónico. */
     public static final FormaPago MONEDERO_ELECTRONICO =
-            new FormaPago("05", "Monedero electrónico", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.SI);
+            new FormaPago("05", "Monedero electrónico", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.SI, "[0-9]{10,11}|[0-9]{15,16}|[0-9]{18}|[A-Z0-9_]{10,50}", "[0-9]{10,11}|[0-9]{15,16}|[0-9]{18}|[A-Z0-9_]{10,50}");
 
     /** {@code 06}: Dinero electrónico. */
     public static final FormaPago DINERO_ELECTRONICO =
-            new FormaPago("06", "Dinero electrónico", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.SI);
+            new FormaPago("06", "Dinero electrónico", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.SI, "[0-9]{10}", null);
 
     /** {@code 08}: Vales de despensa. */
     public static final FormaPago VALES_DESPENSA =
-            new FormaPago("08", "Vales de despensa", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.NO);
+            new FormaPago("08", "Vales de despensa", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.NO, null, null);
 
     /** {@code 12}: Dación en pago. */
     public static final FormaPago DACION_EN_PAGO =
-            new FormaPago("12", "Dación en pago", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.NO);
+            new FormaPago("12", "Dación en pago", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.NO, null, null);
 
     /** {@code 13}: Pago por subrogación. */
     public static final FormaPago SUBROGACION =
-            new FormaPago("13", "Pago por subrogación", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.NO);
+            new FormaPago("13", "Pago por subrogación", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.NO, null, null);
 
     /** {@code 14}: Pago por consignación. */
     public static final FormaPago CONSIGNACION =
-            new FormaPago("14", "Pago por consignación", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.NO);
+            new FormaPago("14", "Pago por consignación", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.NO, null, null);
 
     /** {@code 15}: Condonación. */
     public static final FormaPago CONDONACION =
-            new FormaPago("15", "Condonación", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.NO);
+            new FormaPago("15", "Condonación", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.NO, null, null);
 
     /** {@code 17}: Compensación. */
     public static final FormaPago COMPENSACION =
-            new FormaPago("17", "Compensación", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.NO);
+            new FormaPago("17", "Compensación", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.NO, null, null);
 
     /** {@code 23}: Novación. */
     public static final FormaPago NOVACION =
-            new FormaPago("23", "Novación", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.NO);
+            new FormaPago("23", "Novación", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.NO, null, null);
 
     /** {@code 24}: Confusión. */
     public static final FormaPago CONFUSION =
-            new FormaPago("24", "Confusión", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.NO);
+            new FormaPago("24", "Confusión", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.NO, null, null);
 
     /** {@code 25}: Remisión de deuda. */
     public static final FormaPago REMISION_DEUDA =
-            new FormaPago("25", "Remisión de deuda", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.NO);
+            new FormaPago("25", "Remisión de deuda", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.NO, null, null);
 
     /** {@code 26}: Prescripción o caducidad. */
     public static final FormaPago PRESCRIPCION_CADUCIDAD =
-            new FormaPago("26", "Prescripción o caducidad", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.NO);
+            new FormaPago("26", "Prescripción o caducidad", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.NO, null, null);
 
     /** {@code 27}: A satisfacción del acreedor. */
     public static final FormaPago SATISFACCION_ACREEDOR =
-            new FormaPago("27", "A satisfacción del acreedor", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.NO);
+            new FormaPago("27", "A satisfacción del acreedor", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.NO, null, null);
 
     /** {@code 28}: Tarjeta de débito. */
     public static final FormaPago TARJETA_DEBITO =
-            new FormaPago("28", "Tarjeta de débito", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.SI);
+            new FormaPago("28", "Tarjeta de débito", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.SI, "[0-9]{16}", "[0-9]{10,11}|[0-9]{15,16}|[0-9]{18}|[A-Z0-9_]{10,50}");
 
     /** {@code 29}: Tarjeta de servicios. */
     public static final FormaPago TARJETA_SERVICIOS =
-            new FormaPago("29", "Tarjeta de servicios", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.SI);
+            new FormaPago("29", "Tarjeta de servicios", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.SI, "[0-9]{15,16}", "[0-9]{10,11}|[0-9]{15,16}|[0-9]{18}|[A-Z0-9_]{10,50}");
 
     /** {@code 30}: Aplicación de anticipos. */
     public static final FormaPago APLICACION_ANTICIPOS =
-            new FormaPago("30", "Aplicación de anticipos", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.NO);
+            new FormaPago("30", "Aplicación de anticipos", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.NO, null, null);
 
     /** {@code 31}: Intermediario pagos. */
     public static final FormaPago INTERMEDIARIO_PAGOS =
-            new FormaPago("31", "Intermediario pagos", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.NO);
+            new FormaPago("31", "Intermediario pagos", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.NO, null, null);
 
     /** {@code 99}: Por definir. */
     public static final FormaPago POR_DEFINIR =
-            new FormaPago("99", "Por definir", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.OPCIONAL);
+            new FormaPago("99", "Por definir", Vigencia.desde(LocalDate.of(2022, 1, 1)), Requisito.OPCIONAL, null, null);
 
     private static final List<FormaPago> VALUES = List.of(
             EFECTIVO,
@@ -133,15 +133,21 @@ public final class FormaPago extends CatalogKey {
             VALUES.stream().collect(Collectors.toUnmodifiableMap(CatalogKey::clave, Function.identity()));
 
     private final Requisito bancarizado;
+    private final String patronCuentaOrdenante;
+    private final String patronCuentaBeneficiaria;
 
-    private FormaPago(String clave, String descripcion, Vigencia vigencia, Requisito bancarizado) {
+    private FormaPago(String clave, String descripcion, Vigencia vigencia, Requisito bancarizado, String patronCuentaOrdenante, String patronCuentaBeneficiaria) {
         super(clave, descripcion, vigencia, true);
         this.bancarizado = bancarizado;
+        this.patronCuentaOrdenante = patronCuentaOrdenante;
+        this.patronCuentaBeneficiaria = patronCuentaBeneficiaria;
     }
 
     private FormaPago(String clave) {
         super(clave, null, null, false);
         this.bancarizado = null;
+        this.patronCuentaOrdenante = null;
+        this.patronCuentaBeneficiaria = null;
     }
 
     /**
@@ -173,6 +179,26 @@ public final class FormaPago extends CatalogKey {
      */
     public Optional<Requisito> bancarizado() {
         return Optional.ofNullable(bancarizado);
+    }
+
+    /**
+     * Returns the pattern of the payer account (column "Patrón para cuenta ordenante"), when the
+     * catalog gives one rather than Sí, No or Opcional.
+     *
+     * @return the value; empty for an unknown key or when the catalog leaves it blank
+     */
+    public Optional<String> patronCuentaOrdenante() {
+        return Optional.ofNullable(patronCuentaOrdenante);
+    }
+
+    /**
+     * Returns the pattern of the payee account (column "Patrón para cuenta Beneficiaria"), when
+     * the catalog gives one rather than Sí, No or Opcional.
+     *
+     * @return the value; empty for an unknown key or when the catalog leaves it blank
+     */
+    public Optional<String> patronCuentaBeneficiaria() {
+        return Optional.ofNullable(patronCuentaBeneficiaria);
     }
 
     @Override

@@ -22,6 +22,8 @@
     <catalog.names>${project.basedir}/catalog-names.yaml</catalog.names>
     <catalog.output>${maven.multiModuleProjectDirectory}/cfdi4j-core/src/main/java</catalog.output>
     <error.matrix.file>${maven.multiModuleProjectDirectory}/specs/downloads/MatrizDeErrores_CFDI_v40_20260325.xls</error.matrix.file>
+    <pagos.error.matrix.file>${maven.multiModuleProjectDirectory}/specs/downloads/MatrizDeErrores_CRP_V20_RevB.xls</pagos.error.matrix.file>
+    <pagos.output>${maven.multiModuleProjectDirectory}/cfdi4j-pagos20/src/main/java</pagos.output>
   </properties>
 
   <dependencies>
@@ -72,6 +74,8 @@
                 <argument>${catalog.names}</argument>
                 <argument>${catalog.output}</argument>
                 <argument>${error.matrix.file}</argument>
+                <argument>${pagos.error.matrix.file}</argument>
+                <argument>${pagos.output}</argument>
               </arguments>
             </configuration>
           </execution>

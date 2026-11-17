@@ -39,7 +39,8 @@ import org.apache.poi.ss.usermodel.Workbook;
  * <p>It also generates {@code MatrizErrores}, the inventory of official error codes, from the error
  * matrix file.
  *
- * <p>Usage: {@code CatalogGenerator <catalog.xls> <catalog-names.yaml> <output source root> <error-matrix.xls>}.
+ * <p>Usage: {@code CatalogGenerator <catalog.xls> <catalog-names.yaml> <core source root> <error-matrix.xls>
+ * <pagos-error-matrix.xls> <pagos20 source root>}.
  */
 public final class CatalogGenerator {
 
@@ -70,8 +71,9 @@ public final class CatalogGenerator {
     }
 
     public static void main(String[] args) throws IOException {
-        if (args.length != 4) {
-            System.err.println("Usage: CatalogGenerator <catalog.xls> <catalog-names.yaml> <output source root> <error-matrix.xls>");
+        if (args.length != 6) {
+            System.err.println("Usage: CatalogGenerator <catalog.xls> <catalog-names.yaml> <core source root> <error-matrix.xls>"
+                    + " <pagos-error-matrix.xls> <pagos20 source root>");
             System.exit(2);
         }
         Path xls = Path.of(args[0]);
@@ -87,20 +89,20 @@ public final class CatalogGenerator {
         }
         write(outputRoot.resolve(PACKAGE.replace('.', '/')), files);
 
-        Path matrix = Path.of(args[3]);
-        if (!Files.isRegularFile(matrix)) {
-            throw new GeneratorException(matrix + " not found. Run specs/fetch-sources.sh first.");
+        matrix(Path.of(args[3]), ErrorMatrix.CFDI40, outputRoot.resolve("io/github/alktrip/cfdi4j/core/validation"), "MatrizErrores.java");
+        matrix(Path.of(args[4]), ErrorMatrix.PAGOS20, Path.of(args[5]).resolve("io/github/alktrip/cfdi4j/pagos20"), "MatrizErroresPagos20.java");
+    }
+
+    private static void matrix(Path file, ErrorMatrix.Kind kind, Path directory, String fileName) throws IOException {
+        if (!Files.isRegularFile(file)) {
+            throw new GeneratorException(file + " not found. Run specs/fetch-sources.sh first.");
         }
-        byte[] matrixContent = Files.readAllBytes(matrix);
-        try (Workbook workbook = new HSSFWorkbook(new ByteArrayInputStream(matrixContent))) {
-            Sheet sheet = workbook.getSheet(ErrorMatrix.SHEET);
-            if (sheet == null) {
-                throw new GeneratorException("sheet " + ErrorMatrix.SHEET + " not found in " + matrix);
-            }
-            String name = matrix.getFileName().toString();
-            String source = ErrorMatrix.emit(ErrorMatrix.read(sheet),
-                    GENERATED_MARKER + " from " + name + ". Do not edit.\n", name, sha256(matrixContent));
-            write(outputRoot.resolve("io/github/alktrip/cfdi4j/core/validation"), Map.of("MatrizErrores.java", source));
+        byte[] content = Files.readAllBytes(file);
+        try (Workbook workbook = new HSSFWorkbook(new ByteArrayInputStream(content))) {
+            String name = file.getFileName().toString();
+            List<ErrorMatrix.Row> rows = ErrorMatrix.read(workbook.getSheetAt(0), kind);
+            String header = GENERATED_MARKER + " from " + name + ". Do not edit.\n";
+            write(directory, Map.of(fileName, ErrorMatrix.emit(rows, kind, header, name, sha256(content))));
         }
     }
 
@@ -146,10 +148,19 @@ public final class CatalogGenerator {
 
     private static List<KeyedCatalog> keyedCatalogs() {
         return List.of(
-                simple("c_FormaPago", "FormaPago", 12, 13, List.of(new Header(0, 2, "Bancarizado")),
+                simple("c_FormaPago", "FormaPago", 12, 13, List.of(new Header(0, 2, "Bancarizado"),
+                                new Header(0, 6, "Patrón para cuenta ordenante"), new Header(0, 9, "Patrón para cuenta Beneficiaria")),
                         List.of(new Field("bancarizado", Kind.OPTIONAL_REQUISITO,
-                                "Returns whether the payment form is bank-mediated (column \"Bancarizado\").",
-                                requisito(2)))),
+                                        "Returns whether the payment form is bank-mediated (column \"Bancarizado\").",
+                                        requisito(2)),
+                                new Field("patronCuentaOrdenante", Kind.OPTIONAL_TEXT,
+                                        "Returns the pattern of the payer account (column \"Patrón para cuenta ordenante\"), when the\n"
+                                                + "     * catalog gives one rather than Sí, No or Opcional.",
+                                        pattern(6)),
+                                new Field("patronCuentaBeneficiaria", Kind.OPTIONAL_TEXT,
+                                        "Returns the pattern of the payee account (column \"Patrón para cuenta Beneficiaria\"), when\n"
+                                                + "     * the catalog gives one rather than Sí, No or Opcional.",
+                                        pattern(9)))),
                 simple("c_MetodoPago", "MetodoPago", 2, 3, List.of(), List.of()),
                 simple("c_TipoDeComprobante", "TipoDeComprobante", 4, 5, List.of(new Header(0, 2, "Valor máximo")),
                         List.of(new Field("valorMaximo", Kind.OPTIONAL_DECIMAL,
@@ -248,6 +259,14 @@ public final class CatalogGenerator {
 
     private static Extractor text(int column) {
         return (r, row, clave, ctx) -> JavaText.string(r.optionalText(row, column).orElse(null));
+    }
+
+    /** A pattern cell: empty when the cell holds Sí, No or Opcional instead of a pattern. */
+    private static Extractor pattern(int column) {
+        return (r, row, clave, ctx) -> {
+            String value = r.requiredText(row, column);
+            return Set.of("Sí", "Si", "No", "Opcional").contains(value) ? "null" : JavaText.string(value);
+        };
     }
 
     private static Extractor integer(int column) {

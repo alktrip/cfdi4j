@@ -29,6 +29,11 @@ These files are large or not needed at runtime. `specs/fetch-sources.sh` downloa
 | [`catCFDI_V_4_20261106.xls`](http://omawww.sat.gob.mx/tramitesyservicios/Paginas/documentos/catCFDI_V_4_20261106.xls) | Catálogos CFDI 4.0, version 2026-11-06 | 2026-11-06 | `6249e37275ce164a1c4ac44e726dcd60858dac5c5604ff6c9ab06005a9199e1a` |
 | [`MatrizDeErrores_CFDI_v40_20260325.xls`](http://omawww.sat.gob.mx/tramitesyservicios/Paginas/documentos/MatrizDeErrores_CFDI_v40_20260325.xls) | Matriz de errores CFDI 4.0, version 2026-03-25 | 2026-03-24 | `bdc350035c7ed720af5be15509e01d0bda7c12cec4ad9797b0c34f889c1140a7` |
 | [`Certificados_de_Prueba.zip`](http://omawww.sat.gob.mx/tramitesyservicios/Paginas/documentos/Certificados_de_Prueba.zip) | CSD/FIEL de prueba (test certificates) | 2025-05-09 | `23563077528c1fefcf5d57ad5e2eed9fa51956fe821c97a5d4c54f32f2ebeb8a` |
+| [`Complemento_de_Pagos20_RevB.pdf`](http://omawww.sat.gob.mx/tramitesyservicios/Paginas/documentos/Complemento_de_Pagos20_RevB.pdf) | Estándar del complemento para recepción de pagos 2.0, revisión B | 2023-12-15 | `2580c5335a95315c8f2f7c2e741db3a441bbbe994635897757f514a690b38a3f` |
+| [`Guia_llenado_pagos.pdf`](http://omawww.sat.gob.mx/tramitesyservicios/Paginas/documentos/Guia_llenado_pagos.pdf) | Guía de llenado del complemento para recepción de pagos 2.0 | 2026-01-17 | `d76bcaddc343fd23f6a03a0d735815f848655a01953c1884e6ca71f8c58c4700` |
+| [`MatrizDeErrores_CRP_V20_RevB.xls`](http://omawww.sat.gob.mx/tramitesyservicios/Paginas/documentos/MatrizDeErrores_CRP_V20_RevB.xls) | Matriz de errores del complemento de pagos 2.0, revisión B | 2024-12-14 | `84fef6323770dadd89f4f6fa74fbafaa06a4692d577604363938b31e0d6e4268` |
+| [`catPagos.xls`](http://omawww.sat.gob.mx/tramitesyservicios/Paginas/documentos/catPagos.xls) | Catálogos del complemento de pagos | 2022-09-25 | `5492da027a2edec9a7680e6a43c426ca3c7e3554a596f89ee0248cce576cb200` |
+| [`PregFrec_RP.pdf`](http://omawww.sat.gob.mx/tramitesyservicios/Paginas/documentos/PregFrec_RP.pdf) | Preguntas frecuentes del complemento de pagos | 2022-09-25 | `bc1a8a5dd1f5f61439012aa4648a22db35fc243fa97cba6c87a13d6fb12d272e` |
 
 ## Bundled: XML schemas and stylesheets
 
@@ -101,7 +106,8 @@ Facts read from the certificates with `openssl x509` on 2026-11-14:
 `csd.key` is an encrypted PKCS#8 `EncryptedPrivateKeyInfo` using PBES2 (PBKDF2, 2048 iterations,
 `des-ede3-cbc`).
 
-## Pending
-
-- Guía de llenado del complemento de Pagos 2.0 and its catalogs: the former page
-  `complemento_pagos.htm` returns 404 (2026-11-14); new location to be found before step 8.
+Complemento de pagos index page (2026-11-17):
+<http://omawww.sat.gob.mx/tramitesyservicios/Paginas/recepcion_de_pagos.htm>. It also links
+`Pagos20_.xsd`, an earlier variant of `Pagos20.xsd` (`EquivalenciaDR` with 6 instead of 10
+decimals, published 2023-01-07); it is not used, because `cadenaoriginal_4_0.xslt` and the
+standard reference `Pagos20.xsd`.

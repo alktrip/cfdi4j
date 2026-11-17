@@ -50,7 +50,7 @@ class ErrorMatrixTest {
     }
 
     private static Sheet sheet(HSSFWorkbook wb) {
-        Sheet sheet = wb.createSheet(ErrorMatrix.SHEET);
+        Sheet sheet = wb.createSheet("Códigos_Error_CFDI40");
         sheet.createRow(0).createCell(0).setCellValue("Matriz de códigos de error");
         Row h = sheet.createRow(1);
         String[] headers = {"NÚM", "ELEMENTO", "ATRIBUTO", "VALIDACIÓN", "CÓDIGO ERROR", "DESCRIPCIÓN DE CÓDIGO DE ERROR"};
