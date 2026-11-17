@@ -370,6 +370,77 @@
 
   <profiles>
     <!--
+      Release to Maven Central (see .github/workflows/release.yml). Adds sources and Javadoc jars,
+      signs every artifact with GPG and uploads one bundle to the Central Portal. autoPublish is
+      false: the deployment waits in the portal until the maintainer publishes it by hand.
+        ./mvnw -P release deploy
+      Needs the server "central" in settings.xml and MAVEN_GPG_PASSPHRASE / a GPG key.
+    -->
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+                <configuration>
+                  <failOnWarnings>true</failOnWarnings>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+                <configuration>
+                  <bestPractices>true</bestPractices>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <extensions>true</extensions>
+            <configuration>
+              <publishingServerId>central</publishingServerId>
+              <autoPublish>false</autoPublish>
+              <waitUntil>validated</waitUntil>
+              <deploymentName>cfdi4j ${project.version}</deploymentName>
+              <excludeArtifacts>
+                <excludeArtifact>cfdi4j-examples</excludeArtifact>
+              </excludeArtifacts>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <!--
       Regenerates the catalog sources in cfdi4j-core from the official SAT file (ADR 0008).
       Not part of the default build. Run specs/fetch-sources.sh first, then:
         ./mvnw -P generate-catalogs -pl tools/catalog-generator -am process-classes
