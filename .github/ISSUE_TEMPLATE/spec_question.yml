@@ -1,0 +1,25 @@
+name: Interpretation of a SAT rule
+description: A rule is ambiguous, or cfdi4j reads it differently from you.
+labels: ["spec"]
+body:
+  - type: input
+    id: code
+    attributes:
+      label: Rule code
+      placeholder: CFDI40xxx / CRP20xxx
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: SAT source
+      description: Document, version, page and the exact text.
+    validations:
+      required: true
+  - type: textarea
+    id: reading
+    attributes:
+      label: Your reading and cfdi4j's
+      description: What cfdi4j does today, what you think it should do, and why. An example with SAT test data helps.
+    validations:
+      required: true

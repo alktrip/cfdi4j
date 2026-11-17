@@ -1,0 +1,44 @@
+name: Bug report
+description: Something does not work as documented.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use only SAT public test data (for example RFC EKU9003173C9 and its test CSD).
+        **Never paste real RFCs, names, certificates, private keys or passwords.**
+        Security problems go to the private channel in SECURITY.md, not here.
+  - type: input
+    id: version
+    attributes:
+      label: cfdi4j version
+      placeholder: 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: java
+    attributes:
+      label: Java version and module or class path
+      placeholder: Temurin 21.0.5, module path
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: The code you ran, and the result or exception you got.
+      render: java
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+      description: For a validation result, cite the SAT document and section that defines the expected behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: xml
+    attributes:
+      label: Minimal XML (optional)
+      render: xml

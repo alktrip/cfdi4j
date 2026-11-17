@@ -29,3 +29,10 @@ availability, and would allow the result to change without a release.
 - Updating an official file is a deliberate change: download, update `SOURCES.md`, release.
 - The jar carries all 33 complement XSLTs even though only some complements are modeled, because
   the official stylesheet does not compile without them.
+- The SAT does not state redistribution terms for these files. They are bundled unmodified, with
+  their origin and hash, and the [NOTICE](../../NOTICE) names them. Other open-source projects
+  redistribute the same files (for example `phpcfdi/resources-sat-xml`, under the Unlicense). If
+  the SAT ever objects, the files can move to a separate artifact without changing the API.
+- Saxon-HE is an automatic module (no `module-info`). `cfdi4j-xml` requires it as
+  `net.sf.saxon` and suppresses the `requires-automatic` warning. `jlink` images that include
+  cfdi4j must add Saxon to the class path or use a tool that handles automatic modules.
