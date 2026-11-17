@@ -1,6 +1,6 @@
 # ADR 0011: Arithmetic of the complemento de pagos 2.0
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-11-17
 
 ## Context
@@ -53,3 +53,6 @@ The worked example does not follow the literal formulas. A payment of 19,624.32 
   property test checks this for random amounts and exchange rates.
 - If the SAT publishes a stricter criterion, only `Aritmetica` and the notes `NOTA_CONVERSION` and
   `NOTA_TOTALES` of the rules need to change.
+
+Accepted on 2026-11-17, including the tolerance of points 1 and 2, half up for "redondear" and the
+constant 10^-16 of point 4, and keeping CRP20275 (point 5).
