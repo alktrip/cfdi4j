@@ -111,3 +111,13 @@ Complemento de pagos index page (2026-11-17):
 `Pagos20_.xsd`, an earlier variant of `Pagos20.xsd` (`EquivalenciaDR` with 6 instead of 10
 decimals, published 2023-01-07); it is not used, because `cadenaoriginal_4_0.xslt` and the
 standard reference `Pagos20.xsd`.
+
+## Third-party test vectors (downloaded at test time, never committed)
+
+Used only by the optional profile `-Pexternal-vectors` (ADR 0005). Each file is checked against
+a pinned SHA-256 before use.
+
+| Source | License | What is used | Pinned in |
+|---|---|---|---|
+| [eclipxe13/CfdiUtils](https://github.com/eclipxe13/CfdiUtils), commit `f2a03dc254348a8fb9e50374ecdbe49e7dd43f9b` | MIT | `tests/assets/cfdi40-valid.xml`: its seal must verify with the cadena computed by cfdi4j | `cfdi4j/src/test/java/io/github/alktrip/cfdi4j/ExternalVectorsTest.java` |
+| [CryptoSys FirmaSAT, CFDI 4.0 examples](https://cryptosys.net/firmasat/cfdv40-examples.html), retrieved 2026-11-17 | All rights reserved (no redistribution) | 35 example documents and the cadena original CryptoSys published for each | `cfdi4j-xml/src/test/resources/external/cryptosys-cfdv40.txt` |

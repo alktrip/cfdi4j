@@ -50,3 +50,16 @@ Layer 2 therefore works like layer 3:
   `66056c12f2fc9db3650421eefb762226c04d25cb2fcfb74ee050e8e44f3ff531`) is sealed with the SAT test
   CSD of EKU9003173C9. Verifying its `Sello` against the cadena original computed by cfdi4j proves
   that both tools produce the same cadena; this is used once verification exists (step 6).
+
+## Amendment (2026-11-17): layer 3 and the differential tests
+
+- **CryptoSys.** The example page states no license other than "All rights reserved", so nothing
+  from it is committed. Only names and SHA-256 hashes are kept
+  (`cfdi4j-xml/src/test/resources/external/cryptosys-cfdv40.txt`). `CryptoSysVectorsTest`
+  downloads the 35 CFDI 4.0 examples, which include Pagos 2.0, Carta Porte and Comercio Exterior.
+  It compares the cadena original of cfdi4j with the one CryptoSys published. All 35 match. The
+  examples use fictitious data and dummy certificates, so seals are not compared.
+- **python-satcfdi.** Its README shows how to load and sign documents, but documents no function that
+  returns the cadena original of an existing XML. A differential job would depend on internal
+  functions that may change without notice. With layer 1 (Saxon CLI and OpenSSL), the CfdiUtils
+  seal and the 35 CryptoSys cadenas, the differential job is moved to the roadmap.
