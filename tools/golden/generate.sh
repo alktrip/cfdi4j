@@ -10,7 +10,7 @@
 #    key of EKU9003173C9, decrypted by OpenSSL (password from the SAT archive). RSASSA-PKCS1-v1_5 is
 #    deterministic, so cfdi4j must produce exactly the same Base64.
 #
-# Run from the repository root after: ./mvnw -B -pl cfdi4j-xml -am test-compile
+# Run from the repository root after: ./mvnw -B -pl cfdi4j-pagos20 -am compile
 set -euo pipefail
 
 OUT=cfdi4j-xml/src/test/resources/golden/own
@@ -23,10 +23,14 @@ TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
 openssl pkcs8 -inform DER -in "$CSD/csd.key" -passin pass:12345678a -out "$TMP/key.pem"
 
-mkdir -p "$OUT"
-java -cp "cfdi4j-core/target/classes:cfdi4j-xml/target/classes:$SAXON" tools/golden/GoldenInputs.java "$OUT"
+# Complemento de pagos 2.0: same pipeline, kept with the module that models it.
+PAGOS_OUT=cfdi4j-pagos20/src/test/resources/golden
 
-for xml in "$OUT"/*.xml; do
+mkdir -p "$OUT" "$PAGOS_OUT"
+java -cp "cfdi4j-core/target/classes:cfdi4j-xml/target/classes:$SAXON" tools/golden/GoldenInputs.java "$OUT"
+java -cp "cfdi4j-core/target/classes:cfdi4j-xml/target/classes:cfdi4j-pagos20/target/classes:$SAXON" tools/golden/GoldenPagosInputs.java "$PAGOS_OUT"
+
+for xml in "$OUT"/*.xml "$PAGOS_OUT"/*.xml; do
   name=${xml%.xml}
   java -cp "$SAXON" net.sf.saxon.Transform -s:"$xml" -xsl:"$XSLT" -o:"$name.cadena.txt"
   sha256sum "$name.cadena.txt" | cut -d' ' -f1 > "$name.cadena.sha256"
