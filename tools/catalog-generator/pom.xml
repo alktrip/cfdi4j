@@ -21,6 +21,7 @@
     <catalog.file>${maven.multiModuleProjectDirectory}/specs/downloads/catCFDI_V_4_20261106.xls</catalog.file>
     <catalog.names>${project.basedir}/catalog-names.yaml</catalog.names>
     <catalog.output>${maven.multiModuleProjectDirectory}/cfdi4j-core/src/main/java</catalog.output>
+    <error.matrix.file>${maven.multiModuleProjectDirectory}/specs/downloads/MatrizDeErrores_CFDI_v40_20260325.xls</error.matrix.file>
   </properties>
 
   <dependencies>
@@ -70,6 +71,7 @@
                 <argument>${catalog.file}</argument>
                 <argument>${catalog.names}</argument>
                 <argument>${catalog.output}</argument>
+                <argument>${error.matrix.file}</argument>
               </arguments>
             </configuration>
           </execution>

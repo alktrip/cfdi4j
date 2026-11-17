@@ -36,7 +36,10 @@ import org.apache.poi.ss.usermodel.Workbook;
  * expected shape, and every key must have a constant name in {@code catalog-names.yaml}. Any
  * difference stops the generator, so a change in the SAT file is always reviewed by a person.
  *
- * <p>Usage: {@code CatalogGenerator <catalog.xls> <catalog-names.yaml> <output source root>}.
+ * <p>It also generates {@code MatrizErrores}, the inventory of official error codes, from the error
+ * matrix file.
+ *
+ * <p>Usage: {@code CatalogGenerator <catalog.xls> <catalog-names.yaml> <output source root> <error-matrix.xls>}.
  */
 public final class CatalogGenerator {
 
@@ -67,8 +70,8 @@ public final class CatalogGenerator {
     }
 
     public static void main(String[] args) throws IOException {
-        if (args.length != 3) {
-            System.err.println("Usage: CatalogGenerator <catalog.xls> <catalog-names.yaml> <output source root>");
+        if (args.length != 4) {
+            System.err.println("Usage: CatalogGenerator <catalog.xls> <catalog-names.yaml> <output source root> <error-matrix.xls>");
             System.exit(2);
         }
         Path xls = Path.of(args[0]);
@@ -83,6 +86,22 @@ public final class CatalogGenerator {
             files = new CatalogGenerator(workbook, NameTable.load(yaml), xls.getFileName().toString(), sha256(content)).generate();
         }
         write(outputRoot.resolve(PACKAGE.replace('.', '/')), files);
+
+        Path matrix = Path.of(args[3]);
+        if (!Files.isRegularFile(matrix)) {
+            throw new GeneratorException(matrix + " not found. Run specs/fetch-sources.sh first.");
+        }
+        byte[] matrixContent = Files.readAllBytes(matrix);
+        try (Workbook workbook = new HSSFWorkbook(new ByteArrayInputStream(matrixContent))) {
+            Sheet sheet = workbook.getSheet(ErrorMatrix.SHEET);
+            if (sheet == null) {
+                throw new GeneratorException("sheet " + ErrorMatrix.SHEET + " not found in " + matrix);
+            }
+            String name = matrix.getFileName().toString();
+            String source = ErrorMatrix.emit(ErrorMatrix.read(sheet),
+                    GENERATED_MARKER + " from " + name + ". Do not edit.\n", name, sha256(matrixContent));
+            write(outputRoot.resolve("io/github/alktrip/cfdi4j/core/validation"), Map.of("MatrizErrores.java", source));
+        }
     }
 
     /** Generates every source file, keyed by file name. */
