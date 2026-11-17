@@ -16,7 +16,6 @@ import io.github.alktrip.cfdi4j.core.validation.ValidationContext;
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -161,7 +160,8 @@ final class ImpuestosRules {
     /** Concept traslados of the same Impuesto and TasaOCuota (compared numerically) as the summary row. */
     private static Predicate<Concepto.Traslado> mismoGrupo(Impuestos.Traslado t) {
         return x -> x.impuesto().equals(t.impuesto()) && x.tipoFactor().equals(t.tipoFactor())
-                && Objects.equals(x.tasaOCuota().map(BigDecimal::stripTrailingZeros).orElse(null), t.tasaOCuota().map(BigDecimal::stripTrailingZeros).orElse(null));
+                && x.tasaOCuota().isPresent() == t.tasaOCuota().isPresent()
+                && (x.tasaOCuota().isEmpty() || x.tasaOCuota().get().compareTo(t.tasaOCuota().get()) == 0);
     }
 
     private static Stream<Concepto.Traslado> conceptoTraslados(Comprobante c) {
