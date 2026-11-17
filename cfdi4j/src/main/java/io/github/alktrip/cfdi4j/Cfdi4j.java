@@ -53,6 +53,16 @@ public final class Cfdi4j {
     }
 
     /**
+     * Validates a sealed or stamped CFDI document. See {@link CfdiEngine#validate(byte[])}.
+     *
+     * @param xml the document
+     * @return every problem found
+     */
+    public static ValidationResult validate(byte[] xml) {
+        return engine().validate(xml);
+    }
+
+    /**
      * Seals a comprobante. See {@link CfdiEngine#seal(Comprobante, Csd)}.
      *
      * @param comprobante the comprobante

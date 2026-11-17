@@ -28,8 +28,8 @@ final class Fixtures {
                 .formaPago(FormaPago.TRANSFERENCIA).metodoPago(MetodoPago.PUE).moneda(Moneda.MXN)
                 .tipoDeComprobante(TipoDeComprobante.INGRESO).exportacion(Exportacion.NO_APLICA).lugarExpedicion("72000")
                 .emisor(e -> e.rfc("EKU9003173C9").nombre("ESCUELA KEMPER URGATE").regimenFiscal(RegimenFiscal.GENERAL_PM))
-                .receptor(r -> r.rfc("XAXX010101000").nombre("PUBLICO EN GENERAL").domicilioFiscalReceptor("72000")
-                        .regimenFiscalReceptor(RegimenFiscal.SIN_OBLIGACIONES_FISCALES).usoCFDI(UsoCFDI.SIN_EFECTOS_FISCALES));
+                .receptor(r -> r.rfc("XIA190128J61").nombre("XENON INDUSTRIAL ARTICLES").domicilioFiscalReceptor("76343")
+                        .regimenFiscalReceptor(RegimenFiscal.GENERAL_PM).usoCFDI(UsoCFDI.GASTOS_EN_GENERAL));
     }
 
     static Comprobante simple() {

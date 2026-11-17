@@ -1,10 +1,15 @@
 package io.github.alktrip.cfdi4j;
 
+import io.github.alktrip.cfdi4j.core.CertificateInfo;
+import io.github.alktrip.cfdi4j.core.catalog.CatalogProvider;
 import io.github.alktrip.cfdi4j.core.internal.Messages;
 import io.github.alktrip.cfdi4j.core.model.Comprobante;
 import io.github.alktrip.cfdi4j.core.model.TimbreFiscalDigital;
+import io.github.alktrip.cfdi4j.core.validation.CertificateStatusProvider;
+import io.github.alktrip.cfdi4j.core.validation.Cfdi40Validator;
 import io.github.alktrip.cfdi4j.core.validation.Severity;
 import io.github.alktrip.cfdi4j.core.validation.Status;
+import io.github.alktrip.cfdi4j.core.validation.TaxpayerRegistry;
 import io.github.alktrip.cfdi4j.core.validation.ValidationResult;
 import io.github.alktrip.cfdi4j.core.validation.Violation;
 import io.github.alktrip.cfdi4j.crypto.Certificates;
@@ -52,6 +57,7 @@ public final class CfdiEngine {
 
     private final CfdiXml xml;
     private final CfdiSchema schema;
+    private final Cfdi40Validator rules;
     private final SatCertificates satCertificates;
     private final Clock clock;
     private final Messages messages;
@@ -59,6 +65,8 @@ public final class CfdiEngine {
     private CfdiEngine(Builder b) {
         this.xml = b.xml;
         this.schema = CfdiSchema.defaults().withLocale(b.locale);
+        this.rules = Cfdi40Validator.builder().clock(b.clock).locale(b.locale).catalogProvider(b.catalogProvider)
+                .taxpayerRegistry(b.taxpayerRegistry).certificateStatusProvider(b.certificateStatusProvider).build();
         this.satCertificates = b.satCertificates;
         this.clock = b.clock;
         this.messages = Messages.load(name -> CfdiEngine.class.getResourceAsStream(name), "messages", b.locale);
@@ -84,19 +92,53 @@ public final class CfdiEngine {
     }
 
     /**
-     * Validates a comprobante before sealing: its XML against the official schema, without
-     * requiring {@code Sello}, {@code NoCertificado} or {@code Certificado}.
+     * Validates a comprobante before sealing: its XML against the official schema (without
+     * requiring {@code Sello}, {@code NoCertificado} or {@code Certificado}) and the business rules
+     * of the SAT error matrix. Certificate rules run when sealing.
      *
      * @param comprobante the comprobante
      * @return every problem found
      */
     public ValidationResult validate(Comprobante comprobante) {
-        return schema.validateUnsealed(xml.toBytes(Objects.requireNonNull(comprobante, "comprobante")));
+        Objects.requireNonNull(comprobante, "comprobante");
+        return schema.validateUnsealed(xml.toBytes(comprobante)).and(rules.validate(comprobante));
     }
 
     /**
-     * Seals a comprobante: sets {@code NoCertificado} and {@code Certificado}, validates it,
-     * computes the cadena original, signs it and sets {@code Sello}.
+     * Validates a sealed or stamped CFDI document: the schema (strict) and the business rules,
+     * including the certificate rules with the certificate of its {@code Certificado} attribute.
+     * Use {@link #verify(byte[])} to check that it was not altered.
+     *
+     * @param document the document
+     * @return every problem found
+     */
+    public ValidationResult validate(byte[] document) {
+        Objects.requireNonNull(document, "document");
+        ValidationResult result = schema.validate(document);
+        if (result.has(CfdiSchema.XML_MAL_FORMADO)) {
+            return result;
+        }
+        Comprobante cfdi;
+        try {
+            cfdi = xml.parse(document);
+        } catch (CfdiParseException e) {
+            return result.and(new ValidationResult(List.of(error(NO_LEGIBLE, e.location(), e.getMessage()))));
+        }
+        Optional<CertificateInfo> certificate = cfdi.certificado().flatMap(c -> {
+            try {
+                return Optional.of(Certificates.info(Certificates.fromBase64(c)));
+            } catch (CsdException e) {
+                return Optional.empty();
+            }
+        });
+        return result.and(certificate.isPresent() ? rules.validate(cfdi, certificate.get()) : rules.validate(cfdi));
+    }
+
+    /**
+     * Seals a comprobante: sets {@code NoCertificado} and {@code Certificado}, validates it (schema
+     * and business rules, including the certificate rules for this CSD), computes the cadena
+     * original, signs it and sets {@code Sello}. Warnings (checks not verified) do not prevent
+     * sealing.
      *
      * @param comprobante the comprobante
      * @param csd the CSD of the emisor
@@ -108,7 +150,7 @@ public final class CfdiEngine {
         Objects.requireNonNull(csd, "csd");
         Comprobante conCertificado = comprobante.withCertificado(csd.noCertificado(), csd.certificadoBase64());
         byte[] unsealed = xml.toBytes(conCertificado);
-        ValidationResult result = schema.validateUnsealed(unsealed);
+        ValidationResult result = schema.validateUnsealed(unsealed).and(rules.validate(conCertificado, csd.info()));
         if (!result.isValid()) {
             throw new InvalidCfdiException(result);
         }
@@ -212,8 +254,45 @@ public final class CfdiEngine {
         // Instants only; rules convert to the time zone of LugarExpedicion (c_CodigoPostal).
         private Clock clock = Clock.systemUTC();
         private Locale locale = SPANISH;
+        private CatalogProvider catalogProvider;
+        private TaxpayerRegistry taxpayerRegistry;
+        private CertificateStatusProvider certificateStatusProvider;
 
         private Builder() {}
+
+        /**
+         * Sets the provider of the large SAT catalogs (c_ClaveProdServ, c_ClaveUnidad,
+         * c_CodigoPostal), for example the one of {@code cfdi4j-catalogs}.
+         *
+         * @param catalogProvider the provider
+         * @return this builder
+         */
+        public Builder catalogProvider(CatalogProvider catalogProvider) {
+            this.catalogProvider = catalogProvider;
+            return this;
+        }
+
+        /**
+         * Sets the port to the SAT list of registered RFCs.
+         *
+         * @param taxpayerRegistry the registry
+         * @return this builder
+         */
+        public Builder taxpayerRegistry(TaxpayerRegistry taxpayerRegistry) {
+            this.taxpayerRegistry = taxpayerRegistry;
+            return this;
+        }
+
+        /**
+         * Sets the port to the revocation status of certificates.
+         *
+         * @param certificateStatusProvider the provider
+         * @return this builder
+         */
+        public Builder certificateStatusProvider(CertificateStatusProvider certificateStatusProvider) {
+            this.certificateStatusProvider = certificateStatusProvider;
+            return this;
+        }
 
         /**
          * Sets the XML reader and writer, for example one with extra complement mappers.

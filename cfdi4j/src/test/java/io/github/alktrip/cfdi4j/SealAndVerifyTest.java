@@ -65,7 +65,7 @@ class SealAndVerifyTest {
         for (String[] change : new String[][] {
                 {"Total=\"116.00\"", "Total=\"117.00\""},
                 {"Descripcion=\"Servicio\"", "Descripcion=\"Servicios\""},
-                {"Rfc=\"XAXX010101000\"", "Rfc=\"XEXX010101000\""},
+                {"Rfc=\"XIA190128J61\"", "Rfc=\"IIA040805DZ4\""},
                 {"Fecha=\"2026-11-14T10:30:00\"", "Fecha=\"2026-11-14T10:30:01\""}}) {
             VerificationResult result = Cfdi4j.verify(xml.replace(change[0], change[1]));
 
