@@ -35,3 +35,17 @@ Parsing a CFDI issued with a newer catalog must not crash.
 - `core` stays small; the large data set is opt-in.
 - Open enums cannot be used in `switch` exhaustiveness checks; this is the accepted trade-off for
   forward compatibility.
+
+## Implementation notes (2026-11-17)
+
+- **Large catalogs as resources.** The generator writes c_ClaveProdServ (52,513 keys),
+  c_ClaveUnidad (2,418) and c_CodigoPostal (95,748, from the two sheets of the official file) as
+  tab-separated resources of `cfdi4j-catalogs`. Plain text keeps a SAT update reviewable as a
+  diff. Each file starts with the source file name and its SHA-256, and a test checks that they
+  match the core catalogs.
+- **Discovery.** `SatCatalogs` is a `ServiceLoader` provider of `CatalogProvider`, and
+  `Cfdi40Validator` uses the provider it finds unless one is set explicitly (`null` disables it).
+  Each catalog is loaded on its first query.
+- **c_ClaveProdServ "Complemento que debe incluir"** is empty for every key in
+  `catCFDI_V_4_20261106.xls`, so CFDI40163 cannot ask for a complement with this version of the
+  catalog.

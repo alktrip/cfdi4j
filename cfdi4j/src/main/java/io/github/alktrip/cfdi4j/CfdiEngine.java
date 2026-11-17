@@ -65,8 +65,12 @@ public final class CfdiEngine {
     private CfdiEngine(Builder b) {
         this.xml = b.xml;
         this.schema = CfdiSchema.defaults().withLocale(b.locale);
-        this.rules = Cfdi40Validator.builder().clock(b.clock).locale(b.locale).catalogProvider(b.catalogProvider)
-                .taxpayerRegistry(b.taxpayerRegistry).certificateStatusProvider(b.certificateStatusProvider).build();
+        Cfdi40Validator.Builder validator = Cfdi40Validator.builder().clock(b.clock).locale(b.locale)
+                .taxpayerRegistry(b.taxpayerRegistry).certificateStatusProvider(b.certificateStatusProvider);
+        if (b.catalogProviderSet) {
+            validator.catalogProvider(b.catalogProvider);
+        }
+        this.rules = validator.build();
         this.satCertificates = b.satCertificates;
         this.clock = b.clock;
         this.messages = Messages.load(name -> CfdiEngine.class.getResourceAsStream(name), "messages", b.locale);
@@ -255,6 +259,7 @@ public final class CfdiEngine {
         private Clock clock = Clock.systemUTC();
         private Locale locale = SPANISH;
         private CatalogProvider catalogProvider;
+        private boolean catalogProviderSet;
         private TaxpayerRegistry taxpayerRegistry;
         private CertificateStatusProvider certificateStatusProvider;
 
@@ -262,13 +267,15 @@ public final class CfdiEngine {
 
         /**
          * Sets the provider of the large SAT catalogs (c_ClaveProdServ, c_ClaveUnidad,
-         * c_CodigoPostal), for example the one of {@code cfdi4j-catalogs}.
+         * c_CodigoPostal). By default the one found with {@link java.util.ServiceLoader} is used,
+         * which is the one of {@code cfdi4j-catalogs} when that module is present.
          *
-         * @param catalogProvider the provider
+         * @param catalogProvider the provider, or {@code null} to validate without one
          * @return this builder
          */
         public Builder catalogProvider(CatalogProvider catalogProvider) {
             this.catalogProvider = catalogProvider;
+            this.catalogProviderSet = true;
             return this;
         }
 

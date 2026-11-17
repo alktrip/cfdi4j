@@ -39,8 +39,10 @@ import org.apache.poi.ss.usermodel.Workbook;
  * <p>It also generates {@code MatrizErrores}, the inventory of official error codes, from the error
  * matrix file.
  *
+ * <p>It also writes the large catalogs as resources of {@code cfdi4j-catalogs} ({@link LargeCatalogs}).
+ *
  * <p>Usage: {@code CatalogGenerator <catalog.xls> <catalog-names.yaml> <core source root> <error-matrix.xls>
- * <pagos-error-matrix.xls> <pagos20 source root>}.
+ * <pagos-error-matrix.xls> <pagos20 source root> <catalogs resource root>}.
  */
 public final class CatalogGenerator {
 
@@ -71,9 +73,9 @@ public final class CatalogGenerator {
     }
 
     public static void main(String[] args) throws IOException {
-        if (args.length != 6) {
+        if (args.length != 7) {
             System.err.println("Usage: CatalogGenerator <catalog.xls> <catalog-names.yaml> <core source root> <error-matrix.xls>"
-                    + " <pagos-error-matrix.xls> <pagos20 source root>");
+                    + " <pagos-error-matrix.xls> <pagos20 source root> <catalogs resource root>");
             System.exit(2);
         }
         Path xls = Path.of(args[0]);
@@ -84,10 +86,14 @@ public final class CatalogGenerator {
         }
         byte[] content = Files.readAllBytes(xls);
         Map<String, String> files;
+        Map<String, String> large;
         try (Workbook workbook = new HSSFWorkbook(new ByteArrayInputStream(content))) {
-            files = new CatalogGenerator(workbook, NameTable.load(yaml), xls.getFileName().toString(), sha256(content)).generate();
+            String name = xls.getFileName().toString();
+            files = new CatalogGenerator(workbook, NameTable.load(yaml), name, sha256(content)).generate();
+            large = new LargeCatalogs(workbook, name, sha256(content)).generate();
         }
         write(outputRoot.resolve(PACKAGE.replace('.', '/')), files);
+        write(Path.of(args[6]).resolve("io/github/alktrip/cfdi4j/catalogs"), large);
 
         matrix(Path.of(args[3]), ErrorMatrix.CFDI40, outputRoot.resolve("io/github/alktrip/cfdi4j/core/validation"), "MatrizErrores.java");
         matrix(Path.of(args[4]), ErrorMatrix.PAGOS20, Path.of(args[5]).resolve("io/github/alktrip/cfdi4j/pagos20"), "MatrizErroresPagos20.java");

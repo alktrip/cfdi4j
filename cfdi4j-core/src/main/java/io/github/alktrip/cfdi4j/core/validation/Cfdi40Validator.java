@@ -44,10 +44,16 @@ public final class Cfdi40Validator {
         this.rules = List.copyOf(all);
         this.oficiales = Map.copyOf(entries);
         this.clock = b.clock;
-        this.catalogs = b.catalogs;
+        this.catalogs = b.catalogsSet ? b.catalogs : discoverCatalogs();
         this.taxpayers = b.taxpayers;
         this.certificateStatus = b.certificateStatus;
         this.messages = Messages.load(name -> Cfdi40Validator.class.getResourceAsStream(name), "messages", b.locale);
+    }
+
+    /** The first {@link CatalogProvider} found with {@link ServiceLoader}, by class name; {@code null} if none. */
+    private static CatalogProvider discoverCatalogs() {
+        return ServiceLoader.load(CatalogProvider.class).stream().map(ServiceLoader.Provider::get)
+                .min(Comparator.comparing(p -> p.getClass().getName())).orElse(null);
     }
 
     private static List<RuleSet> discover() {
@@ -58,7 +64,9 @@ public final class Cfdi40Validator {
 
     /**
      * Starts a configuration with every rule (CFDI 4.0 and the {@link RuleSet} providers found
-     * with {@link ServiceLoader}), the system UTC clock, no ports and Spanish messages.
+     * with {@link ServiceLoader}), the {@link CatalogProvider} found with {@link ServiceLoader} if
+     * any (for example the one of {@code cfdi4j-catalogs}), the system UTC clock, no other ports and
+     * Spanish messages.
      *
      * @return a builder
      */
@@ -111,6 +119,7 @@ public final class Cfdi40Validator {
         private List<RuleSet> ruleSets;
         private Clock clock = Clock.systemUTC();
         private CatalogProvider catalogs;
+        private boolean catalogsSet;
         private TaxpayerRegistry taxpayers;
         private CertificateStatusProvider certificateStatus;
         private Locale locale = Locale.forLanguageTag("es-MX");
@@ -151,13 +160,14 @@ public final class Cfdi40Validator {
         }
 
         /**
-         * Sets the provider of the large catalogs.
+         * Sets the provider of the large catalogs, replacing the one found with {@link ServiceLoader}.
          *
-         * @param catalogs the provider
+         * @param catalogs the provider, or {@code null} to validate without one
          * @return this builder
          */
         public Builder catalogProvider(CatalogProvider catalogs) {
             this.catalogs = catalogs;
+            this.catalogsSet = true;
             return this;
         }
 

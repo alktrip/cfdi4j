@@ -24,6 +24,7 @@
     <error.matrix.file>${maven.multiModuleProjectDirectory}/specs/downloads/MatrizDeErrores_CFDI_v40_20260325.xls</error.matrix.file>
     <pagos.error.matrix.file>${maven.multiModuleProjectDirectory}/specs/downloads/MatrizDeErrores_CRP_V20_RevB.xls</pagos.error.matrix.file>
     <pagos.output>${maven.multiModuleProjectDirectory}/cfdi4j-pagos20/src/main/java</pagos.output>
+    <catalogs.output>${maven.multiModuleProjectDirectory}/cfdi4j-catalogs/src/main/resources</catalogs.output>
   </properties>
 
   <dependencies>
@@ -76,6 +77,7 @@
                 <argument>${error.matrix.file}</argument>
                 <argument>${pagos.error.matrix.file}</argument>
                 <argument>${pagos.output}</argument>
+                <argument>${catalogs.output}</argument>
               </arguments>
             </configuration>
           </execution>
