@@ -62,6 +62,8 @@
 
     <!-- Tests tagged "external" download third-party vectors; they run only with -Pexternal-vectors (ADR 0005). -->
     <test.excludedGroups>external</test.excludedGroups>
+    <!-- Set to true to regenerate docs/rules-coverage.md (RulesCoverageReportTest). -->
+    <rules.coverage.write>false</rules.coverage.write>
 
     <!-- Coverage threshold (JaCoCo). Raised to 0.90 in cfdi4j-core, cfdi4j-xml and cfdi4j-crypto. -->
     <coverage.minimum>0.00</coverage.minimum>
@@ -307,6 +309,9 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <excludedGroups>${test.excludedGroups}</excludedGroups>
+          <systemPropertyVariables>
+            <rules.coverage.write>${rules.coverage.write}</rules.coverage.write>
+          </systemPropertyVariables>
           <includes>
             <include>**/*Test.java</include>
             <!-- jqwik property-based tests -->
