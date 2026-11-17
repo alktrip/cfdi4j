@@ -14,6 +14,10 @@
   <name>cfdi4j Pagos 2.0</name>
   <description>Complemento para recepción de pagos 2.0 for cfdi4j.</description>
 
+  <properties>
+    <coverage.minimum>0.90</coverage.minimum>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>io.github.alktrip</groupId>
