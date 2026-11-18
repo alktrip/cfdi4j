@@ -24,6 +24,9 @@ import java.util.Objects;
  */
 public final class Cfdi40Validator {
 
+    /** Code of the error reported when a rule throws an exception instead of giving a result. */
+    public static final String RULE_FAILED = "CFDI4J-107";
+
     private final List<Rule> rules;
     private final Map<String, MatrizErrores.Entrada> oficiales;
     private final Clock clock;
@@ -108,7 +111,13 @@ public final class Cfdi40Validator {
         ValidationContext context = new ValidationContext(comprobante, clock, catalogs, taxpayers, certificateStatus, certificate, messages,
                 oficiales);
         for (Rule rule : rules) {
-            rule.check(context);
+            try {
+                rule.check(context);
+            } catch (RuntimeException e) {
+                // A rule that breaks on unexpected data must not hide the other results, and must
+                // never count as passed.
+                context.fail(RULE_FAILED, "/cfdi:Comprobante", null, rule.code(), e.getClass().getSimpleName());
+            }
         }
         return context.result();
     }

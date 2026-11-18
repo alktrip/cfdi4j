@@ -22,6 +22,8 @@ First public version.
   - Ports `CatalogProvider`, `TaxpayerRegistry` and `CertificateStatusProvider` for checks that need
     SAT data.
   - SPI `RuleSet` for rules contributed by other modules.
+  - A rule that fails unexpectedly is reported as error `CFDI4J-107`, and the other rules still
+    run.
 - `cfdi4j-xml`:
   - XML writer and parser.
   - XSD validation with the bundled SAT schemas.
