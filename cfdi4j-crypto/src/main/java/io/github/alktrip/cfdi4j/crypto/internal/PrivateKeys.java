@@ -27,6 +27,9 @@ public final class PrivateKeys {
     static final String PBES2 = "1.2.840.113549.1.5.13";
     static final String PBKDF2 = "1.2.840.113549.1.5.12";
 
+    /** Upper bound of PBKDF2 iterations accepted, far above any real key file. */
+    static final int MAX_ITERATIONS = 10_000_000;
+
     /** PBKDF2 pseudo-random functions (RFC 8018, appendix B.1). */
     private static final Map<String, String> PRFS = Map.of(
             "1.2.840.113549.2.7", "PBKDF2WithHmacSHA1",
@@ -54,6 +57,15 @@ public final class PrivateKeys {
      * @throws IllegalArgumentException if the structure is not supported
      */
     public static PrivateKey decrypt(byte[] der, char[] password, String keyAlgorithm) throws GeneralSecurityException {
+        try {
+            return decryptUnchecked(der, password, keyAlgorithm);
+        } catch (IndexOutOfBoundsException | ArithmeticException e) {
+            // A DER structure with missing fields or out-of-range integers.
+            throw new IllegalArgumentException("malformed EncryptedPrivateKeyInfo", e);
+        }
+    }
+
+    private static PrivateKey decryptUnchecked(byte[] der, char[] password, String keyAlgorithm) throws GeneralSecurityException {
         Der.Tlv info = Der.parse(der).expect(Der.SEQUENCE);
         List<Der.Tlv> parts = info.children();
         if (parts.size() != 2) {
@@ -82,11 +94,18 @@ public final class PrivateKeys {
         List<Der.Tlv> kdfParams = kdf.get(1).expect(Der.SEQUENCE).children();
         byte[] salt = kdfParams.get(0).octets();
         int iterations = kdfParams.get(1).integer().intValueExact();
+        if (iterations < 1 || iterations > MAX_ITERATIONS) {
+            // The SAT files use 2048; a huge count would only make loading hang.
+            throw new IllegalArgumentException("unsupported PBKDF2 iteration count " + iterations);
+        }
         String prf = "PBKDF2WithHmacSHA1";
         int keyLength = -1;
         for (Der.Tlv optional : kdfParams.subList(2, kdfParams.size())) {
             if (optional.tag() == Der.INTEGER) {
                 keyLength = optional.integer().intValueExact();
+                if (keyLength < 1 || keyLength > 64) {
+                    throw new IllegalArgumentException("unsupported PBKDF2 key length " + keyLength);
+                }
             } else {
                 String oid = optional.expect(Der.SEQUENCE).children().get(0).oid();
                 prf = PRFS.get(oid);

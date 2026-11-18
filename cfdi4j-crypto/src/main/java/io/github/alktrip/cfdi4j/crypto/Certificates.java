@@ -101,9 +101,16 @@ public final class Certificates {
      *
      * @param certificate the certificate
      * @return the information
+     * @throws CsdException if the serial number is not a SAT certificate number or the subject
+     *     cannot be read
      */
     public static CertificateInfo info(X509Certificate certificate) {
-        Map<String, String> subject = subject(certificate);
+        Map<String, String> subject;
+        try {
+            subject = subject(certificate);
+        } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
+            throw new CsdException("Cannot read the subject of the certificate", e);
+        }
         String unique = subject.getOrDefault(X500_UNIQUE_IDENTIFIER, "");
         // Persona moral certificates hold "RFC / RFC of the legal representative".
         String rfc = unique.contains("/") ? unique.substring(0, unique.indexOf('/')).strip() : unique.strip();

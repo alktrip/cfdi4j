@@ -67,4 +67,13 @@ class SealsTest {
 
         assertThat(Seals.verify("||4.0||", wrapped, CSD.certificate())).isTrue();
     }
+
+    /** A forged document may carry a certificate with a key that is not RSA: not a valid seal, never an exception. */
+    @Test
+    void aSealCannotBeValidUnderACertificateWithAnotherKeyType() throws IOException {
+        java.security.cert.X509Certificate ec = Certificates.parse(Files.readAllBytes(
+                Path.of("src", "test", "resources", "ec-prueba.cer")));
+
+        assertThat(Seals.verify("||4.0|cadena||", CSD.sign("||4.0|cadena||"), ec)).isFalse();
+    }
 }

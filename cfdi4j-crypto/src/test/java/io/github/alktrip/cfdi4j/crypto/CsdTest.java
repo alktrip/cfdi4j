@@ -74,6 +74,46 @@ class CsdTest {
     }
 
     @Test
+    void malformedKeyStructuresAreReportedAsCsdException() throws IOException {
+        byte[] cer = Files.readAllBytes(DIR.resolve("csd.cer"));
+        byte[] pbes2 = {0x06, 0x09, 0x2a, (byte) 0x86, 0x48, (byte) 0x86, (byte) 0xf7, 0x0d, 0x01, 0x05, 0x0d};
+        // PBES2 without its parameters.
+        byte[] sinParametros = der(0x30, der(0x30, pbes2), der(0x04, new byte[] {0}));
+
+        assertThatThrownBy(() -> Csd.load(cer, sinParametros, PASSWORD))
+                .isInstanceOf(CsdException.class).hasMessageContaining("Not a supported encrypted PKCS#8 private key");
+    }
+
+    @Test
+    void anAbsurdIterationCountIsRejectedBeforeDerivingTheKey() throws IOException {
+        byte[] cer = Files.readAllBytes(DIR.resolve("csd.cer"));
+        byte[] pbes2 = {0x06, 0x09, 0x2a, (byte) 0x86, 0x48, (byte) 0x86, (byte) 0xf7, 0x0d, 0x01, 0x05, 0x0d};
+        byte[] pbkdf2 = {0x06, 0x09, 0x2a, (byte) 0x86, 0x48, (byte) 0x86, (byte) 0xf7, 0x0d, 0x01, 0x05, 0x0c};
+        byte[] des3 = {0x06, 0x08, 0x2a, (byte) 0x86, 0x48, (byte) 0x86, (byte) 0xf7, 0x0d, 0x03, 0x07};
+        byte[] iteraciones = der(0x02, new byte[] {0x7f, (byte) 0xff, (byte) 0xff, (byte) 0xff});
+        byte[] kdf = der(0x30, pbkdf2, der(0x30, der(0x04, new byte[8]), iteraciones));
+        byte[] esquema = der(0x30, des3, der(0x04, new byte[8]));
+        byte[] llave = der(0x30, der(0x30, pbes2, der(0x30, kdf, esquema)), der(0x04, new byte[16]));
+
+        assertThatThrownBy(() -> Csd.load(cer, llave, PASSWORD))
+                .isInstanceOf(CsdException.class).hasMessageContaining("unsupported PBKDF2 iteration count 2147483647");
+    }
+
+    /** A DER value with a short-form length (less than 128 bytes of content). */
+    private static byte[] der(int tag, byte[]... parts) {
+        java.io.ByteArrayOutputStream content = new java.io.ByteArrayOutputStream();
+        for (byte[] part : parts) {
+            content.writeBytes(part);
+        }
+        byte[] body = content.toByteArray();
+        byte[] out = new byte[body.length + 2];
+        out[0] = (byte) tag;
+        out[1] = (byte) body.length;
+        System.arraycopy(body, 0, out, 2, body.length);
+        return out;
+    }
+
+    @Test
     void acceptsPemFiles() throws IOException {
         byte[] cer = Files.readAllBytes(DIR.resolve("csd.cer"));
         byte[] key = Files.readAllBytes(DIR.resolve("csd.key"));

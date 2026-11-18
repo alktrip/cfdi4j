@@ -39,7 +39,7 @@ public final class Seals {
      * @param sello the {@code Sello} attribute (Base64)
      * @param certificate the certificate whose public key made the seal
      * @return {@code true} if the seal matches the cadena; {@code false} if it does not, or if the
-     *     seal is not valid Base64
+     *     seal is not valid Base64, or if the key of the certificate cannot verify SHA256withRSA
      */
     public static boolean verify(String cadenaOriginal, String sello, X509Certificate certificate) {
         Objects.requireNonNull(cadenaOriginal, "cadenaOriginal");
@@ -56,7 +56,8 @@ public final class Seals {
             signature.initVerify(certificate.getPublicKey());
             signature.update(cadenaOriginal.getBytes(StandardCharsets.UTF_8));
             return signature.verify(bytes);
-        } catch (java.security.SignatureException e) {
+        } catch (java.security.SignatureException | java.security.InvalidKeyException e) {
+            // A malformed seal, or a certificate whose key is not RSA: the seal cannot be valid.
             return false;
         } catch (GeneralSecurityException e) {
             throw new CsdException("Cannot verify with the certificate key", e);
