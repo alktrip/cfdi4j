@@ -34,6 +34,9 @@ model, XML mapping, XSD and the rules of its error matrix:
 ## Out of scope
 
 - Stamping (timbrado) and cancellation: they are services of an authorized PAC.
+- SAT web services (status queries, downloads, LCO, lists of RFCs). The library never uses the
+  network; such data enters through the ports `TaxpayerRegistry` and `CertificateStatusProvider`.
+- PDF generation, or any other printed representation of a CFDI.
 - CFDI 3.3 and earlier versions.
 
 Ideas and votes are welcome in the
