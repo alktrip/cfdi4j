@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
 import javax.xml.XMLConstants;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
@@ -26,6 +27,12 @@ public final class XmlElement {
 
     private final Element element;
     private final String path;
+
+    /** Lexical space of {@code xs:decimal}: optional sign, digits and an optional fraction, no exponent. */
+    private static final Pattern DECIMAL = Pattern.compile("[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)");
+    /** {@code yyyy-MM-ddTHH:mm:ss}, the only date-time form of the SAT schemas. */
+    private static final Pattern DATE_TIME = Pattern.compile("[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}");
+    private static final int MAX_QUOTED = 60;
 
     private XmlElement(Element element, String path) {
         this.element = element;
@@ -109,11 +116,13 @@ public final class XmlElement {
      */
     public Optional<BigDecimal> optionalDecimal(String name) {
         return optional(name).map(v -> {
-            try {
-                return new BigDecimal(v.strip());
-            } catch (NumberFormatException e) {
-                throw error("@" + name, "'" + v + "' is not a decimal number");
+            String text = v.strip();
+            // Only the lexical form of xs:decimal: an exponent such as 1E999999999 would make
+            // later rounding build a number with a billion digits.
+            if (!DECIMAL.matcher(text).matches()) {
+                throw error("@" + name, "'" + abbreviate(v) + "' is not a decimal number");
             }
+            return new BigDecimal(text);
         });
     }
 
@@ -141,7 +150,7 @@ public final class XmlElement {
         try {
             return Integer.parseInt(value.strip());
         } catch (NumberFormatException e) {
-            throw error("@" + name, "'" + value + "' is not an integer");
+            throw error("@" + name, "'" + abbreviate(value) + "' is not an integer");
         }
     }
 
@@ -154,10 +163,14 @@ public final class XmlElement {
      */
     public LocalDateTime requiredDateTime(String name) {
         String value = required(name);
+        String text = value.strip();
         try {
-            return LocalDateTime.parse(value.strip());
+            if (!DATE_TIME.matcher(text).matches()) {
+                throw new DateTimeParseException("not yyyy-MM-ddTHH:mm:ss", text, 0);
+            }
+            return LocalDateTime.parse(text);
         } catch (DateTimeParseException e) {
-            throw error("@" + name, "'" + value + "' is not a date-time (yyyy-MM-ddTHH:mm:ss)");
+            throw error("@" + name, "'" + abbreviate(value) + "' is not a date-time (yyyy-MM-ddTHH:mm:ss)");
         }
     }
 
@@ -289,5 +302,10 @@ public final class XmlElement {
             }
         }
         return result;
+    }
+
+    /** Shortens a value quoted in an error message, so a huge attribute does not end up in logs. */
+    private static String abbreviate(String value) {
+        return value.length() <= MAX_QUOTED ? value : value.substring(0, MAX_QUOTED) + "… (" + value.length() + " characters)";
     }
 }

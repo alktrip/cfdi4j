@@ -8,11 +8,13 @@ import io.github.alktrip.cfdi4j.xml.internal.SecureXml;
 import io.github.alktrip.cfdi4j.xml.spi.ComplementoXml;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.CharConversionException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.UncheckedIOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -156,6 +158,9 @@ public final class CfdiXml {
             document = builder.parse(source);
         } catch (SAXException e) {
             throw new CfdiParseException("", "not well-formed XML: " + e.getMessage(), e);
+        } catch (UnsupportedEncodingException | CharConversionException e) {
+            // The document declares an unknown encoding or its bytes do not match it.
+            throw new CfdiParseException("", "unreadable XML encoding: " + e.getMessage(), e);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

@@ -113,6 +113,40 @@ class CfdiXmlParseTest {
     }
 
     @Test
+    void acceptsOnlyTheLexicalFormsOfTheSchemas() {
+        // An exponent would let later rounding build a number with a billion digits.
+        assertThatThrownBy(() -> xml.parse(STAMPED.replace("SubTotal=\"1000\"", "SubTotal=\"1E999999999\"")))
+                .isInstanceOf(CfdiParseException.class).hasMessageContaining("@SubTotal").hasMessageContaining("is not a decimal number");
+        assertThatThrownBy(() -> xml.parse(STAMPED.replace("SubTotal=\"1000\"", "SubTotal=\"1e-5\""))).isInstanceOf(CfdiParseException.class);
+        assertThatThrownBy(() -> xml.parse(STAMPED.replace("SubTotal=\"1000\"", "SubTotal=\"NaN\""))).isInstanceOf(CfdiParseException.class);
+        assertThat(xml.parse(STAMPED.replace("SubTotal=\"1000\"", "SubTotal=\" +1000.50 \"")).subTotal()).isEqualByComparingTo("1000.50");
+        assertThat(xml.parse(STAMPED.replace("SubTotal=\"1000\"", "SubTotal=\".5\"")).subTotal()).isEqualByComparingTo("0.5");
+        // Without seconds or with a fraction, the date would be written back differently.
+        assertThatThrownBy(() -> xml.parse(STAMPED.replace("2026-11-14T10:30:00\"", "2026-11-14T10:30\"")))
+                .hasMessageContaining("@Fecha").hasMessageContaining("is not a date-time");
+        assertThatThrownBy(() -> xml.parse(STAMPED.replace("2026-11-14T10:30:00\"", "2026-11-14T10:30:00.5\"")))
+                .hasMessageContaining("is not a date-time");
+    }
+
+    @Test
+    void quotesOnlyTheStartOfAHugeValue() {
+        String huge = "9".repeat(100_000) + "x";
+
+        assertThatThrownBy(() -> xml.parse(STAMPED.replace("SubTotal=\"1000\"", "SubTotal=\"" + huge + "\"")))
+                .isInstanceOf(CfdiParseException.class).hasMessageContaining("(100001 characters)")
+                .satisfies(e -> assertThat(e.getMessage()).hasSizeLessThan(400));
+    }
+
+    @Test
+    void anUnknownEncodingIsAParseError() {
+        byte[] bytes = ("<?xml version=\"1.0\" encoding=\"no-existe\"?>" + STAMPED.substring(STAMPED.indexOf("?>") + 2))
+                .getBytes(StandardCharsets.UTF_8);
+
+        assertThatThrownBy(() -> xml.parse(bytes)).isInstanceOf(CfdiParseException.class).hasMessageContaining("encoding");
+        assertThat(CfdiSchema.defaults().validate(bytes).errors()).extracting(v -> v.code()).containsExactly(CfdiSchema.XML_MAL_FORMADO);
+    }
+
+    @Test
     void rejectsAttributesAndElementsTheXsdDoesNotDefine() {
         assertThatThrownBy(() -> xml.parse(STAMPED.replace("<cfdi:Emisor ", "<cfdi:Emisor Curp=\"X\" ")))
                 .isInstanceOfSatisfying(CfdiParseException.class, e -> assertThat(e.location()).isEqualTo("/cfdi:Comprobante/cfdi:Emisor/@Curp"));

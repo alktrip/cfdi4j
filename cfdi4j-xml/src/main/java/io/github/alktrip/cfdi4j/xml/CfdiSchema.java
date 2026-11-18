@@ -10,9 +10,11 @@ import io.github.alktrip.cfdi4j.xml.internal.SatResourceResolver;
 import io.github.alktrip.cfdi4j.xml.internal.SatResources;
 import io.github.alktrip.cfdi4j.xml.internal.SchemaFilter;
 import java.io.ByteArrayInputStream;
+import java.io.CharConversionException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -181,6 +183,10 @@ public final class CfdiSchema {
             return new ValidationResult(violations);
         } catch (SAXException e) {
             throw new IllegalStateException("Unexpected validation failure", e);
+        } catch (UnsupportedEncodingException | CharConversionException e) {
+            // Reading from memory: an I/O error can only be an unknown or mismatched encoding.
+            violations.add(new Violation(XML_MAL_FORMADO, Severity.ERROR, Status.FAILED, "", messages.format(XML_MAL_FORMADO, e.getMessage())));
+            return new ValidationResult(violations);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
