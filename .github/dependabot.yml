@@ -1,0 +1,13 @@
+# Keeps the pinned versions current: Maven dependencies and plugins, and the GitHub Actions,
+# which are pinned to commit SHAs. Each update arrives as a pull request that CI checks.
+version: 2
+updates:
+  - package-ecosystem: maven
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
