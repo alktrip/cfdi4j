@@ -29,9 +29,27 @@ These are in scope:
 A business rule that gives a wrong result is a bug, not a vulnerability: open a regular issue with
 the SAT source.
 
+## Using cfdi4j with untrusted documents
+
+- **Limit the size of the input.** The XML parsers reject DOCTYPE declarations and the JDK limits
+  entity expansion, but a document is read into memory whole. Reject oversized requests before
+  calling cfdi4j; real CFDIs are rarely above a few megabytes.
+- **`verify` proves integrity, not authenticity.** It checks the seal against the certificate
+  inside the document. It does not prove that the SAT issued that certificate, and anyone can
+  create a certificate with any RFC. Use `validate` for the certificate rules (RFC, CSD, validity),
+  plug in a `CertificateStatusProvider` for revocation, and treat the certificate chain as not
+  validated.
+- `validate` and `verify` return violations for malformed documents instead of throwing. A
+  regression test mutates sealed documents with hostile values (huge numbers, exponents, wrong
+  encodings, foreign certificates) to keep it that way. If a rule ever fails unexpectedly, it is
+  reported as error `CFDI4J-107`, never as passed.
+
 ## Design measures
 
 - XML is parsed with secure processing, DOCTYPE declarations are rejected, and SAT schemas and
   stylesheets are resolved only from bundled copies.
 - Private keys are decrypted with the JDK's JCA only. Passwords are passed as `char[]`.
-- Dependencies are checked by GitHub's dependency review on every pull request.
+- Decimal values are read only in the lexical form of the SAT schemas: no exponents.
+- Encrypted keys with an absurd PBKDF2 iteration count are rejected before deriving the key.
+- Dependencies are checked by GitHub's dependency review on every pull request and kept current
+  by Dependabot. GitHub Actions are pinned to commit SHAs.

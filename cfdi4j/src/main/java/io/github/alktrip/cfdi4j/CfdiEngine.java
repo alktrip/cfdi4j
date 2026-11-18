@@ -180,7 +180,11 @@ public final class CfdiEngine {
      * {@code Sello} and {@code SelloSAT} must match the cadena original of the timbre; the latter
      * needs the SAT certificate and is reported as not verified without it.
      *
-     * <p>This checks integrity only. Use validation for the content rules.
+     * <p>This checks integrity only: the seal is checked against the certificate inside the
+     * document, so a valid result does not prove that the SAT issued that certificate. Use
+     * {@link #validate(byte[])} for the certificate rules (RFC of the emisor, CSD and not e.firma,
+     * validity and, with a {@link CertificateStatusProvider}, revocation) and the content rules.
+     * The certificate chain up to the SAT's certification authorities is not validated.
      *
      * @param document the document
      * @return the result; never throws for a bad document

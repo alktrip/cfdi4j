@@ -56,7 +56,7 @@ Comprobante cfdi = Comprobante.builder().fecha(LocalDateTime.of(2026, 11, 14, 10
 
 ValidationResult result = Cfdi4j.validate(cfdi);        // business rules + XSD
 String xml = Cfdi4j.seal(cfdi, csd).toXml();             // cadena original + SHA256withRSA
-boolean intact = Cfdi4j.verify(xml).isValid();           // seal and certificate check
+boolean intact = Cfdi4j.verify(xml).isValid();           // not altered since it was sealed
 ```
 
 `SubTotal`, `Total`, the concept's `Importe` and every tax amount are derived by the builder.
@@ -82,7 +82,8 @@ for (Violation v : result.violations()) {
 | c_ClaveProdServ, c_ClaveUnidad and c_CodigoPostal (optional module `cfdi4j-catalogs`) | ✅ supported |
 | XML writing and parsing; XSD validation with the bundled SAT schemas | ✅ supported |
 | Cadena original with the official XSLT 2.0 (Saxon-HE), offline | ✅ supported |
-| Sealing with the CSD `.cer`/`.key` (SHA256withRSA); seal and certificate verification | ✅ supported |
+| Sealing with the CSD `.cer`/`.key` (SHA256withRSA); verification that a CFDI was not altered | ✅ supported |
+| Certificate rules: RFC of the emisor, CSD and not e.firma, validity at `Fecha`, revocation through a port | ✅ supported |
 | Verification of the TimbreFiscalDigital 1.1 (SelloSAT) with the SAT certificate that stamped it | ✅ supported |
 | Business rules of the CFDI 4.0 error matrix: 101 implemented, 10 partial ([report](docs/rules-coverage.md)) | ✅ supported |
 | Complemento de pagos 2.0: model, builder, XML and its error matrix ([report](docs/rules-coverage-pagos20.md)) | ✅ supported |
@@ -152,6 +153,11 @@ of Pagos 2.0 is in [ADR 0011](docs/adr/0011-pagos20-arithmetic.md).
 
 - **Not a PAC.** cfdi4j does not stamp (timbrar) or cancel invoices. A sealed CFDI must still be
   sent to an authorized PAC.
+- `verify` proves **integrity**: the seal matches the content and the certificate inside the
+  document. It does not prove that the SAT issued that certificate. Anyone can create a
+  certificate with any RFC. `validate` adds the certificate rules (RFC, CSD, validity and, with a
+  `CertificateStatusProvider`, revocation). Validating the certificate chain up to the SAT's
+  certification authorities is not done yet.
 - Rules that need SAT data are only as good as the adapters you provide. Without them, they are
   reported as not verified.
 - Only Pagos 2.0 and the TimbreFiscalDigital are modeled and validated against their XSD. Other

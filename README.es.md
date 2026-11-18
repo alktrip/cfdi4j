@@ -59,7 +59,7 @@ Comprobante cfdi = Comprobante.builder().fecha(LocalDateTime.of(2026, 11, 14, 10
 
 ValidationResult result = Cfdi4j.validate(cfdi);        // business rules + XSD
 String xml = Cfdi4j.seal(cfdi, csd).toXml();             // cadena original + SHA256withRSA
-boolean intact = Cfdi4j.verify(xml).isValid();           // seal and certificate check
+boolean intact = Cfdi4j.verify(xml).isValid();           // not altered since it was sealed
 ```
 
 El constructor calcula `SubTotal`, `Total`, el `Importe` del concepto y todos los impuestos.
@@ -86,7 +86,8 @@ for (Violation v : result.violations()) {
 | c_ClaveProdServ, c_ClaveUnidad y c_CodigoPostal (módulo opcional `cfdi4j-catalogs`) | ✅ soportado |
 | Escritura y lectura de XML; validación XSD con los esquemas del SAT incluidos | ✅ soportado |
 | Cadena original con el XSLT 2.0 oficial (Saxon-HE), sin red | ✅ soportado |
-| Sellado con el `.cer` y `.key` del CSD (SHA256withRSA); verificación del sello y del certificado | ✅ soportado |
+| Sellado con el `.cer` y `.key` del CSD (SHA256withRSA); verificación de que un CFDI no fue alterado | ✅ soportado |
+| Reglas del certificado: RFC del emisor, CSD y no e.firma, vigencia en `Fecha`, revocación mediante un puerto | ✅ soportado |
 | Verificación del TimbreFiscalDigital 1.1 (SelloSAT) con el certificado del SAT que timbró | ✅ soportado |
 | Reglas de la matriz de errores CFDI 4.0: 101 implementadas y 10 parciales ([reporte](docs/rules-coverage.md)) | ✅ soportado |
 | Complemento de pagos 2.0: modelo, constructor, XML y su matriz de errores ([reporte](docs/rules-coverage-pagos20.md)) | ✅ soportado |
@@ -158,6 +159,12 @@ redondeo de pagos 2.0 está en el [ADR 0011](docs/adr/0011-pagos20-arithmetic.md
 
 - **No es un PAC.** cfdi4j no timbra ni cancela comprobantes. Un CFDI sellado se debe enviar a un
   PAC autorizado.
+- `verify` comprueba la **integridad**: que el sello corresponda al contenido y al certificado que
+  viene dentro del documento. No comprueba que ese certificado lo haya emitido el SAT; cualquiera
+  puede crear un certificado con cualquier RFC.
+  - `validate` agrega las reglas del certificado: RFC, CSD, vigencia y, con un
+    `CertificateStatusProvider`, revocación.
+  - Todavía no se valida la cadena del certificado hasta las autoridades certificadoras del SAT.
 - Las reglas que requieren datos del SAT dependen de los adaptadores que proporciones. Sin ellos se
   reportan como no verificadas.
 - Solo pagos 2.0 y el TimbreFiscalDigital se modelan y se validan contra su XSD. Los demás

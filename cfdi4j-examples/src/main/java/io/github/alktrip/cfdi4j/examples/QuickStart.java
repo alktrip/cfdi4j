@@ -46,7 +46,7 @@ public final class QuickStart {
 
         ValidationResult result = Cfdi4j.validate(cfdi);        // business rules + XSD
         String xml = Cfdi4j.seal(cfdi, csd).toXml();             // cadena original + SHA256withRSA
-        boolean intact = Cfdi4j.verify(xml).isValid();           // seal and certificate check
+        boolean intact = Cfdi4j.verify(xml).isValid();           // not altered since it was sealed
         // end::quickstart[]
         System.out.println("errors: " + result.errors().size() + ", intact: " + intact);
         return xml;

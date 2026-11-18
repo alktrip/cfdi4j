@@ -25,7 +25,9 @@ public record VerificationResult(ValidationResult result, Optional<Comprobante> 
 
     /**
      * Tells whether the document is intact: no error was found. Checks that could not run (for
-     * example the {@code SelloSAT} without the SAT certificate) are warnings.
+     * example the {@code SelloSAT} without the SAT certificate) are warnings. Intact means not
+     * altered since it was sealed with the certificate it carries; see
+     * {@link CfdiEngine#verify(byte[])} for what is not checked.
      *
      * @return {@code true} if intact
      */
