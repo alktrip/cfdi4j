@@ -542,9 +542,14 @@ public final class PagosBuilder {
          *
          * @param equivalenciaDR the value
          * @return this builder
+         * @throws IllegalArgumentException if the value is not greater than zero
          */
         public DoctoRelacionadoBuilder equivalenciaDR(String equivalenciaDR) {
-            this.equivalenciaDR = decimal(equivalenciaDR);
+            BigDecimal value = decimal(equivalenciaDR);
+            if (value != null && value.signum() <= 0) {
+                throw new IllegalArgumentException("EquivalenciaDR must be greater than zero: " + equivalenciaDR);
+            }
+            this.equivalenciaDR = value;
             return this;
         }
 

@@ -163,6 +163,12 @@ class PagosBuilderTest {
     }
 
     @Test
+    void rejectsANonPositiveEquivalence() {
+        assertThatThrownBy(() -> Pagos.builder().pago(pagoMxn(documento().andThen(d -> d.equivalenciaDR("0")))))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("EquivalenciaDR must be greater than zero");
+    }
+
+    @Test
     void requiresTheEquivalenceBetweenDifferentCurrencies() {
         assertThatThrownBy(() -> Pagos.builder().pago(p -> p.fechaPago(PagosFixtures.FECHA_PAGO).formaDePagoP(FormaPago.TRANSFERENCIA)
                 .monedaP(Moneda.USD).tipoCambioP("17.5").monto("10.00").doctoRelacionado(documento())).build())

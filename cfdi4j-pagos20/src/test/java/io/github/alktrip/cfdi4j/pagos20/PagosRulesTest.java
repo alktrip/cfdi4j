@@ -337,6 +337,18 @@ class PagosRulesTest {
         assertThat(caso.validar().errors()).as("errors of %s", caso).isEmpty();
     }
 
+    /** The XSD requires EquivalenciaDR > 0; a document that breaks it must not make a rule divide by zero. */
+    @Test
+    void aNonPositiveEquivalenceIsLeftToTheSchema() {
+        for (String valor : List.of("0", "-17.7331")) {
+            Pagos guia = Copias.primerDocto(PagosFixtures.ejemploGuia(), d -> Copias.con(d, "equivalenciaDR", Optional.of(new BigDecimal(valor))));
+
+            ValidationResult result = PagosFixtures.validator().validate(PagosFixtures.con(guia));
+
+            assertThat(result.errors()).extracting(Violation::code).doesNotContain(Cfdi40Validator.RULE_FAILED);
+        }
+    }
+
     @Test
     void rulesDoNotApplyWithoutTheComplement() {
         Comprobante sinComplemento = PagosFixtures.recibo().build();

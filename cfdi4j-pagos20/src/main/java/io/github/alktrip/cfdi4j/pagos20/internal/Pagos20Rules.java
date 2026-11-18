@@ -309,7 +309,7 @@ final class Pagos20Rules {
                 porPago("CRP20228", (ctx, p, path) -> soloCon(ctx, "CRP20228", path, "CtaBeneficiario", p.ctaBeneficiario(), p, FORMAS_BENEFICIARIO)),
                 porPago("CRP20229", (ctx, p, path) -> soloCon(ctx, "CRP20229", path, "TipoCadPago", p.tipoCadPago(), p, Set.of("03"))),
                 porDocto("CRP20275", (ctx, p, d, path) -> {
-                    if (!d.monedaDR().equals(p.monedaP()) && d.equivalenciaDR().isPresent()) {
+                    if (!d.monedaDR().equals(p.monedaP()) && positiva(d.equivalenciaDR()).isPresent()) {
                         OptionalInt dp = p.monedaP().decimales();
                         if (dp.isPresent()) {
                             BigDecimal convertido = Aritmetica.aMonedaPago(d.impPagado(), d.equivalenciaDR().get())
@@ -345,7 +345,7 @@ final class Pagos20Rules {
     private static void montoConMargen(ValidationContext ctx, Pagos.Pago p, String path) {
         OptionalInt dp = p.monedaP().decimales();
         boolean mixto = p.doctoRelacionado().stream().anyMatch(d -> !d.monedaDR().equals(p.monedaP()));
-        if (!mixto || dp.isEmpty() || p.doctoRelacionado().stream().anyMatch(d -> d.equivalenciaDR().isEmpty())) {
+        if (!mixto || dp.isEmpty() || p.doctoRelacionado().stream().anyMatch(d -> positiva(d.equivalenciaDR()).isEmpty())) {
             return;
         }
         BigDecimal suma = p.doctoRelacionado().stream().map(d -> Aritmetica.aMonedaPago(d.impPagado(), d.equivalenciaDR().get()))
@@ -666,9 +666,9 @@ final class Pagos20Rules {
             if (d.impuestosDR().isEmpty()) {
                 continue;
             }
-            Optional<BigDecimal> eq = d.equivalenciaDR();
+            Optional<BigDecimal> eq = positiva(d.equivalenciaDR());
             if (eq.isEmpty()) {
-                return; // CRP20237 reports it.
+                return; // CRP20237 reports a missing value, the XSD one that is not positive.
             }
             suma = suma.add(valores.apply(d.impuestosDR().get()).map(v -> Aritmetica.aMonedaPago(v, eq.get())).reduce(BigDecimal.ZERO, BigDecimal::add));
         }
@@ -679,6 +679,14 @@ final class Pagos20Rules {
     }
 
     // --- shared checks ---
+
+    /**
+     * An EquivalenciaDR that can divide: the XSD requires at least 0.0000000001, and a document
+     * that breaks it is reported by the schema validation, not by a division error here.
+     */
+    private static Optional<BigDecimal> positiva(Optional<BigDecimal> equivalenciaDR) {
+        return equivalenciaDR.filter(e -> e.signum() > 0);
+    }
 
     private static void igual(ValidationContext ctx, String code, String location, String esperado, Object valor) {
         if (!esperado.equals(Objects.toString(valor))) {
