@@ -4,7 +4,7 @@
 
 [![CI](https://github.com/alktrip/cfdi4j/actions/workflows/ci.yml/badge.svg)](https://github.com/alktrip/cfdi4j/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
-![Java](https://img.shields.io/badge/java-25%2B-blue.svg)
+![Java](https://img.shields.io/badge/java-21%2B-blue.svg)
 
 Create, validate, seal and verify Mexican electronic invoices (**CFDI 4.0**) in Java.
 
@@ -26,7 +26,7 @@ every rule traced to the public SAT document it comes from.
 
 ## Quick start
 
-Requires Java 25 or later. The coordinates below are those of the first release, `0.1.0`, once it
+Requires Java 21 or later. The coordinates below are those of the first release, `0.1.0`, once it
 is published to Maven Central:
 
 ```xml
@@ -149,7 +149,7 @@ of Pagos 2.0 is in [ADR 0011](docs/adr/0011-pagos20-arithmetic.md).
 - Property-based tests (jqwik) for amounts, rounding and totals.
 - Round trips (build → XML → parse → equal) and tampering tests (one changed attribute breaks
   the seal).
-- Builds on JDK 25, with Error Prone and a JaCoCo coverage minimum of 90 %.
+- Builds on JDK 21 and 25, with Error Prone and a JaCoCo coverage minimum of 90 %.
 
 ## Limitations
 

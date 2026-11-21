@@ -5,7 +5,7 @@ changes are added as dated notes or amendments.
 
 | ADR | Decision |
 |-----|----------|
-| [0001](0001-build-coordinates-and-baseline.md) | Coordinates `io.github.alktrip`, Java 25 baseline, Maven Wrapper, Semantic Versioning |
+| [0001](0001-build-coordinates-and-baseline.md) | Coordinates `io.github.alktrip`, Java 21 baseline, Maven Wrapper, Semantic Versioning |
 | [0002](0002-language-conventions.md) | Spanish domain vocabulary, English technical API, localized rule messages |
 | [0003](0003-catalog-modeling.md) | Open-enum catalogs, `CatalogProvider`, generated catalog code and resources |
 | [0004](0004-validation-codes-and-sat-ports.md) | Official vs. own error codes, local certificate rules, ports for SAT services |

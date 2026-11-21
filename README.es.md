@@ -4,7 +4,7 @@
 
 [![CI](https://github.com/alktrip/cfdi4j/actions/workflows/ci.yml/badge.svg)](https://github.com/alktrip/cfdi4j/actions/workflows/ci.yml)
 [![Licencia](https://img.shields.io/badge/licencia-Apache--2.0-blue.svg)](LICENSE)
-![Java](https://img.shields.io/badge/java-25%2B-blue.svg)
+![Java](https://img.shields.io/badge/java-21%2B-blue.svg)
 
 Crea, valida, sella y verifica comprobantes fiscales digitales (**CFDI 4.0**) en Java.
 
@@ -29,7 +29,7 @@ SAT del que proviene.
 
 ## Inicio rápido
 
-Requiere Java 25 o posterior. Estas son las coordenadas de la primera versión, `0.1.0`, en cuanto
+Requiere Java 21 o posterior. Estas son las coordenadas de la primera versión, `0.1.0`, en cuanto
 se publique en Maven Central:
 
 ```xml
@@ -155,7 +155,7 @@ redondeo de pagos 2.0 está en el [ADR 0011](docs/adr/0011-pagos20-arithmetic.md
 - Pruebas basadas en propiedades (jqwik) para importes, redondeo y totales.
 - Ida y vuelta (construir → XML → leer → igual).
 - Pruebas de alteración: cambiar un solo atributo invalida el sello.
-- Compilación en JDK 25, con Error Prone y una cobertura mínima de 90 % con JaCoCo.
+- Compilación en JDK 21 y 25, con Error Prone y una cobertura mínima de 90 % con JaCoCo.
 
 ## Limitaciones
 
