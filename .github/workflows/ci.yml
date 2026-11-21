@@ -78,8 +78,13 @@ jobs:
         run: specs/fetch-sources.sh
       - name: Regenerate catalog sources
         run: ./mvnw -B -ntp -P generate-catalogs -pl tools/catalog-generator -am verify
-      - name: Fail if regeneration changed anything
-        run: git diff --exit-code
+      - name: Fail if regeneration changed any generated file
+        # Only the generated paths: unrelated changes (for example line endings that a bot writes
+        # into a wrapper script) must not fail this check.
+        run: |
+          paths="cfdi4j-core/src/main/java cfdi4j-pagos20/src/main/java cfdi4j-catalogs/src/main/resources"
+          git diff --exit-code -- $paths
+          test -z "$(git status --porcelain --untracked-files=all -- $paths)"
 
   external-vectors:
     name: Third-party vectors (ADR 0005)
