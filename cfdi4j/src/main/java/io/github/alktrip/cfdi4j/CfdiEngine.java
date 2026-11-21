@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Validates, seals and verifies CFDI 4.0 with a given configuration. Immutable and thread-safe;
@@ -65,6 +67,9 @@ public final class CfdiEngine {
     public static final int DEFAULT_MAX_DOCUMENT_SIZE = 20 * 1024 * 1024;
 
     private static final Locale SPANISH = Locale.forLanguageTag("es-MX");
+    /** The encoding pseudo-attribute of an XML declaration at the start of a document. */
+    private static final Pattern DECLARED_ENCODING =
+            Pattern.compile("\\uFEFF?<\\?xml\\s[^?>]*?\\bencoding\\s*=\\s*[\"']([A-Za-z][A-Za-z0-9._-]*)[\"']");
 
     private final CfdiXml xml;
     private final CfdiSchema schema;
@@ -186,11 +191,20 @@ public final class CfdiEngine {
     /**
      * Verifies a CFDI as text. See {@link #verify(byte[])}.
      *
+     * <p>The text is already decoded, so the encoding named in its XML declaration no longer
+     * applies: the characters are verified as given. (The declaration is not part of the cadena
+     * original.)
+     *
      * @param xmlText the document
      * @return the result
      */
     public VerificationResult verify(String xmlText) {
-        return verify(Objects.requireNonNull(xmlText, "xml").getBytes(StandardCharsets.UTF_8));
+        Objects.requireNonNull(xmlText, "xml");
+        Matcher declaration = DECLARED_ENCODING.matcher(xmlText);
+        String utf8 = declaration.lookingAt()
+                ? xmlText.substring(0, declaration.start(1)) + "UTF-8" + xmlText.substring(declaration.end(1))
+                : xmlText;
+        return verify(utf8.getBytes(StandardCharsets.UTF_8));
     }
 
     /**

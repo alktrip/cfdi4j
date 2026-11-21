@@ -130,6 +130,10 @@ public final class CfdiXml {
     /**
      * Parses a CFDI 4.0 document, detecting its encoding from the XML declaration.
      *
+     * <p>Amounts are kept as numbers with their scale: a leading zero, which the SAT schema allows
+     * ({@code 021.00}), is not kept, so writing the comprobante again may change the cadena
+     * original. To check a received document, verify its original bytes.
+     *
      * @param xml the XML bytes
      * @return the comprobante
      * @throws CfdiParseException if the bytes are not well-formed XML or not a CFDI 4.0 comprobante
