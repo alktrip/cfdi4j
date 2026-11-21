@@ -1,5 +1,6 @@
 package io.github.alktrip.cfdi4j.core.validation;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -16,7 +17,10 @@ import java.util.Objects;
  * @param location where the problem is: an XPath-like location, or {@code line N, column M}
  * @param message human-readable description, in the locale the validator was configured with
  */
-public record Violation(String code, Severity severity, Status status, String location, String message) {
+public record Violation(String code, Severity severity, Status status, String location, String message) implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
 
     /** Checks that no component is null. */
     public Violation {

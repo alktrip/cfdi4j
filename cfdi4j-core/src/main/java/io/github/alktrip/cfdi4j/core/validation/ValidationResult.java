@@ -1,5 +1,6 @@
 package io.github.alktrip.cfdi4j.core.validation;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,7 +9,10 @@ import java.util.List;
  *
  * @param violations the violations, in the order they were found
  */
-public record ValidationResult(List<Violation> violations) {
+public record ValidationResult(@SuppressWarnings("serial") List<Violation> violations) implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
 
     private static final ValidationResult EMPTY = new ValidationResult(List.of());
 

@@ -11,7 +11,6 @@ public final class InvalidCfdiException extends Cfdi4jException {
     private static final long serialVersionUID = 1L;
 
     /** The violations that prevented the operation. */
-    @SuppressWarnings("serial") // ValidationResult holds an immutable List.copyOf list
     private final ValidationResult result;
 
     /**
