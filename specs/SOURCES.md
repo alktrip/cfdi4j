@@ -112,6 +112,51 @@ Complemento de pagos index page (2026-11-17):
 decimals, published 2023-01-07); it is not used, because `cadenaoriginal_4_0.xslt` and the
 standard reference `Pagos20.xsd`.
 
+## Bundled: certificates of the SAT certification authorities
+
+Used by `SatAuthorities` (`cfdi4j-crypto`) to check that the certificate of a CFDI was issued by
+the SAT. Both archives are linked from the page
+<http://omawww.sat.gob.mx/tramitesyservicios/Paginas/certificado_sello_digital.htm> (retrieved
+2026-11-20; both report `Last-Modified: 2025-05-09`). Only the certificates of authorities (AC, ARC)
+are bundled, unmodified; the OCSP responder certificates of `Cert_Prod.zip` are used only by tests.
+
+| Archive | Description on the page | SHA-256 |
+|---------|-------------------------|---------|
+| [`Cert_Prod.zip`](http://omawww.sat.gob.mx/tramitesyservicios/Paginas/documentos/Cert_Prod.zip) | "Certificados para validar la cadena de confianza de los certificados de producción"; "Certificados raíz de los certificados que emite el SAT" | `c58f3fe92e23d1c82cee46e8b2356b69b0e216b23bbec86eefdc280822ad6af7` |
+| [`Certificados_P.zip`](http://omawww.sat.gob.mx/tramitesyservicios/Paginas/documentos/Certificados_P.zip) | "Certificados padre con el que se generaron los certificados de prueba" | `3883297015baea0fd5c5143d4d5ea4c37333ce6235ef71a1351688a25149203a` |
+
+The subject and issuer (CN) and the end of validity were read with `openssl x509`. The test CSD
+of `EKU9003173C9` was issued by `AC_UAT_2022.crt` (checked with `openssl verify`).
+
+| Path | Name in the archive | Subject CN | Issuer CN | Valid until | SHA-256 |
+|------|---------------------|------------|-----------|-------------|---------|
+| `sat/ac/produccion/AC0_SAT.cer` | `Cert_Prod/AC0_SAT.cer` | A.C. del Servicio de Administración Tributaria | ARC Banxico | 2008-10-27 | `dea351137799ea3841217710308eca5f37fd2f4ae3dfca7f7580fcbc1e5fe6a4` |
+| `sat/ac/produccion/AC1_SAT.cer` | `Cert_Prod/AC1_SAT.cer` | A.C. del Servicio de Administración Tributaria | A.C. del Servicio de Administración Tributaria | 2016-10-14 | `94bda1051d48706b73c427e0c5c990771cece1d3b061c8bca278be686908a2e6` |
+| `sat/ac/produccion/AC2_SAT.cer` | `Cert_Prod/AC2_SAT.cer` | A.C. del Servicio de Administración Tributaria | Agencia Registradora Central | 2019-12-16 | `4e166a2a5d88ada1f24dfe1a85b56fcc905322f805ef6a6b67472de5f6a20869` |
+| `sat/ac/produccion/AC3_SAT.cer` | `Cert_Prod/AC3_SAT.cer` | A.C. del Servicio de Administración Tributaria | Agencia Registradora Central | 2021-04-29 | `cef5304ab651e3031f8010ad68b557d0489214aa715f76fcd55d602109c44236` |
+| `sat/ac/produccion/AC4_SAT.cer` | `Cert_Prod/AC4_SAT.cer` | A.C. del Servicio de Administración Tributaria | Agencia Registradora Central | 2023-05-25 | `9ce0c3a0a7b4b992388cfd903ca2241af5187e45bceb23af735fc4e3b206afce` |
+| `sat/ac/produccion/AC5_SAT.cer` | `Cert_Prod/AC5_SAT.cer` | AUTORIDAD CERTIFICADORA | AGENCIA REGISTRADORA CENTRAL | 2027-05-03 | `1ac6325143920fc047b6506e42540944fa6590b44560807b564c5603d15add8e` |
+| `sat/ac/produccion/AC5_SAT.crt` | `Cert_Prod/AC5_SAT.crt` | AUTORIDAD CERTIFICADORA | AGENCIA REGISTRADORA CENTRAL | 2027-05-03 | `d51a66ac74963220c573c9e28eb06b47e7f1f1bee2a0696ad034b29bd649f4a2` |
+| `sat/ac/produccion/AC6_SAT.crt` | `Cert_Prod/AC6_SAT.crt` | A.C. del Servicio de AdministraciÃ³n Tributaria (double-encoded in the certificate itself) | AGENCIA REGISTRADORA CENTRAL | 2031-03-24 | `8a5c0fd3fcc9df62f3551a11635da3b7cec3a4010a755c0514a136a978b98a7b` |
+| `sat/ac/produccion/AC7.crt` | `Cert_Prod/AC7.crt` | AC DEL SERVICIO DE ADMINISTRACION TRIBUTARIA | AGENCIA REGISTRADORA CENTRAL | 2031-05-23 | `93819cb5eadac506607ff10749590fca354705cdff2d75f1214699b600dc6d90` |
+| `sat/ac/produccion/ARC0_IES.cer` | `Cert_Prod/ARC0_IES.cer` | ARC Banxico | ARC Banxico | 2011-06-20 | `11f0f4ab4b06105af76b0b98f3643c4cd1c26ebd9db51524166cf5ccdb39f172` |
+| `sat/ac/produccion/ARC1_IES.cer` | `Cert_Prod/ARC1_IES.cer` | Agencia Registradora Central | Agencia Registradora Central | 2016-03-25 | `b2b77ad7f5513fecb543abbb9290650125ecc995d0fe4a75348f030705385eb4` |
+| `sat/ac/produccion/ARC2_IES.crt` | `Cert_Prod/ARC2_IES.crt` | Agencia Registradora Central | Agencia Registradora Central | 2026-07-20 | `065c577268841d93ce91786adb7faebc597db9d9f91c227059f27c476812dd63` |
+| `sat/ac/produccion/ARC3_IES.crt` | `Cert_Prod/ARC3_IES.crt` | Agencia Registradora Central | Agencia Registradora Central | 2026-07-20 | `065c577268841d93ce91786adb7faebc597db9d9f91c227059f27c476812dd63` |
+| `sat/ac/produccion/ARC4_IES.crt` | `Cert_Prod/ARC4_IES.crt` | Agencia Registradora Central | Agencia Registradora Central | 2026-07-20 | `065c577268841d93ce91786adb7faebc597db9d9f91c227059f27c476812dd63` |
+| `sat/ac/produccion/ARC5_IES.cer` | `Cert_Prod/ARC5_IES.cer` | AGENCIA REGISTRADORA CENTRAL | AGENCIA REGISTRADORA CENTRAL | 2034-12-03 | `cbf3e084a86cac5ef1060b9242196eec15e8786931ffff05466ba7becd43b15e` |
+| `sat/ac/produccion/ARC5_IES.crt` | `Cert_Prod/ARC5_IES.crt` | AGENCIA REGISTRADORA CENTRAL | AGENCIA REGISTRADORA CENTRAL | 2034-12-03 | `e89a2ae35713aaab0daf386b2660c0228e2df8afd8a175549e8a8b19e624c938` |
+| `sat/ac/produccion/ARC6_IES.crt` | `Cert_Prod/ARC6_IES.crt` | AGENCIA REGISTRADORA CENTRAL | AGENCIA REGISTRADORA CENTRAL | 2039-03-17 | `521c64469002ad5489c6b74eb2f14bb377c8e427825cd731b1f72baa26a142e2` |
+| `sat/ac/produccion/ARC7_IES.crt` | `Cert_Prod/ARC7_IES.crt` | AGENCIA REGISTRADORA CENTRAL | AGENCIA REGISTRADORA CENTRAL | 2039-03-17 | `521c64469002ad5489c6b74eb2f14bb377c8e427825cd731b1f72baa26a142e2` |
+| `sat/ac/pruebas/ac2_4096_DER.cer` | `Certificados_P/Certificados_P/ac2_4096_DER.cer` | A.C. 2 de pruebas(4096) | ARC | 2021-11-04 | `d70774c3b201cfd638a2f898b72f7749b712cd7355c510db1c8703326adddd9b` |
+| `sat/ac/pruebas/ac2_4096_PEM.crt` | `Certificados_P/Certificados_P/ac2_4096_PEM.crt` | A.C. 2 de pruebas(4096) | ARC | 2021-11-04 | `43c959b9dde86ecf0dd767067215d306996bed08d47b2057c0472a2afd5c5985` |
+| `sat/ac/pruebas/AC_4096_2018.cer` | `Certificados_P/Certificado_AC_Pruebas/AC_4096_2018.cer` | AC UAT | ARC beta | 2022-02-23 | `b089d761a431504f450839d71283c5b2862f551d8fed7cabf2adbaa24fea2adb` |
+| `sat/ac/pruebas/AC_4096_2018.crt` | `Certificados_P/Certificado_AC_Pruebas/AC_4096_2018.crt` | AC UAT | ARC beta | 2022-02-23 | `4769960502ecb8dcc97d10e439f73900de95e4f2011088ac379dc65cff0cbbe0` |
+| `sat/ac/pruebas/AC_UAT_2022.crt` | `Certificados_P/Certificados_UAT_2022/AC_UAT_2022.crt` | AC UAT | Agencia Certficadora Raiz Beta ANG | 2030-03-04 | `f06ea4bb666a86408b1512ced1920cad4feb1da99a6f047ca3986ac5c544d0a9` |
+| `sat/ac/pruebas/ARC_UAT.crt` | `Certificados_P/Certificados_P/ARC_UAT.crt` | ARC | ARC | 2018-02-15 | `e5ed5ec00de8caede8a5190d19452dd4e82e363984bd2d34afda4c47c3be7ce6` |
+| `sat/ac/pruebas/ARC_UAT_2022.crt` | `Certificados_P/Certificados_UAT_2022/ARC_UAT_2022.crt` | Agencia Certficadora Raiz Beta ANG | Agencia Certficadora Raiz Beta ANG | 2037-08-11 | `71372b78f75f24c19cbc32873f6b21eb2682d9b4a3ba02bf681ab1e952392bae` |
+| `sat/ac/pruebas/arcbeta_crt_raiz.crt` | `Certificados_P/Certificado_AC_Pruebas/arcbeta_crt_raiz.crt` | ARC beta | ARC beta | 2022-08-10 | `4ccc613651a1ec34e6f7b7819c98e5ae6038cc13d406b0a8e2f14c99f939b86f` |
+
 ## Third-party test vectors (downloaded at test time, never committed)
 
 Used only by the optional profile `-Pexternal-vectors` (ADR 0005). Each file is checked against

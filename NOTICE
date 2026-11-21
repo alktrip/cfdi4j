@@ -4,7 +4,8 @@ Copyright 2026 The cfdi4j authors
 This product is licensed under the Apache License, Version 2.0.
 
 This product bundles, unmodified, XML schemas (XSD) and stylesheets (XSLT)
-published by the Servicio de Administración Tributaria (SAT) of Mexico, and
+and the certificates of the certification authorities published by the
+Servicio de Administración Tributaria (SAT) of Mexico, and
 uses SAT public test certificates in its test suite. The module cfdi4j-catalogs
 contains data extracted from the SAT catalog file catCFDI_V_4_<date>.xls. Their origin, publication
 date and SHA-256 are listed in specs/SOURCES.md.
