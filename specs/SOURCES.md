@@ -120,10 +120,10 @@ the SAT. Both archives are linked from the page
 2026-11-20; both report `Last-Modified: 2025-05-09`). Only the certificates of authorities (AC, ARC)
 are bundled, unmodified; the OCSP responder certificates of `Cert_Prod.zip` are used only by tests.
 
-| Archive | Description on the page | SHA-256 |
-|---------|-------------------------|---------|
-| [`Cert_Prod.zip`](http://omawww.sat.gob.mx/tramitesyservicios/Paginas/documentos/Cert_Prod.zip) | "Certificados para validar la cadena de confianza de los certificados de producción"; "Certificados raíz de los certificados que emite el SAT" | `c58f3fe92e23d1c82cee46e8b2356b69b0e216b23bbec86eefdc280822ad6af7` |
-| [`Certificados_P.zip`](http://omawww.sat.gob.mx/tramitesyservicios/Paginas/documentos/Certificados_P.zip) | "Certificados padre con el que se generaron los certificados de prueba" | `3883297015baea0fd5c5143d4d5ea4c37333ce6235ef71a1351688a25149203a` |
+| Archive | Description on the page | Published (Last-Modified) | SHA-256 |
+|---------|-------------------------|---------------------------|---------|
+| [`Cert_Prod.zip`](http://omawww.sat.gob.mx/tramitesyservicios/Paginas/documentos/Cert_Prod.zip) | "Certificados para validar la cadena de confianza de los certificados de producción"; "Certificados raíz de los certificados que emite el SAT" | 2025-05-09 | `c58f3fe92e23d1c82cee46e8b2356b69b0e216b23bbec86eefdc280822ad6af7` |
+| [`Certificados_P.zip`](http://omawww.sat.gob.mx/tramitesyservicios/Paginas/documentos/Certificados_P.zip) | "Certificados padre con el que se generaron los certificados de prueba" | 2025-05-09 | `3883297015baea0fd5c5143d4d5ea4c37333ce6235ef71a1351688a25149203a` |
 
 The subject and issuer (CN) and the end of validity were read with `openssl x509`. The test CSD
 of `EKU9003173C9` was issued by `AC_UAT_2022.crt` (checked with `openssl verify`).
