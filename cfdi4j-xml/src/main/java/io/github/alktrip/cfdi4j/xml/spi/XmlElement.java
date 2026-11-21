@@ -1,5 +1,6 @@
 package io.github.alktrip.cfdi4j.xml.spi;
 
+import io.github.alktrip.cfdi4j.core.internal.SafeText;
 import io.github.alktrip.cfdi4j.xml.CfdiParseException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -306,6 +307,6 @@ public final class XmlElement {
 
     /** Shortens a value quoted in an error message, so a huge attribute does not end up in logs. */
     private static String abbreviate(String value) {
-        return value.length() <= MAX_QUOTED ? value : value.substring(0, MAX_QUOTED) + "… (" + value.length() + " characters)";
+        return SafeText.of(value, MAX_QUOTED);
     }
 }

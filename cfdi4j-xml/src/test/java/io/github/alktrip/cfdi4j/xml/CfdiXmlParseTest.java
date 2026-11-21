@@ -138,6 +138,17 @@ class CfdiXmlParseTest {
     }
 
     @Test
+    void controlCharactersOfTheDocumentNeverReachAMessageRaw() {
+        // &#10; survives attribute normalization as a real line break.
+        String xml = STAMPED.replace("SubTotal=\"1000\"", "SubTotal=\"1&#10;2026-11-20 INFO pago autorizado\"");
+
+        assertThatThrownBy(() -> this.xml.parse(xml)).isInstanceOf(CfdiParseException.class)
+                .satisfies(e -> assertThat(e.getMessage()).doesNotContain("\n").contains("\\n2026-11-20 INFO"));
+        assertThat(CfdiSchema.defaults().validate(xml.getBytes(StandardCharsets.UTF_8)).errors())
+                .allSatisfy(v -> assertThat(v.message()).doesNotContain("\n").hasSizeLessThan(1500));
+    }
+
+    @Test
     void anUnknownEncodingIsAParseError() {
         byte[] bytes = ("<?xml version=\"1.0\" encoding=\"no-existe\"?>" + STAMPED.substring(STAMPED.indexOf("?>") + 2))
                 .getBytes(StandardCharsets.UTF_8);

@@ -1,6 +1,7 @@
 package io.github.alktrip.cfdi4j.xml;
 
 import io.github.alktrip.cfdi4j.core.Cfdi4jException;
+import io.github.alktrip.cfdi4j.core.internal.SafeText;
 
 /** Thrown when an XML document cannot be read as a CFDI 4.0 comprobante. */
 public final class CfdiParseException extends Cfdi4jException {
@@ -18,7 +19,7 @@ public final class CfdiParseException extends Cfdi4jException {
      * @param message description of the problem
      */
     public CfdiParseException(String location, String message) {
-        super(location.isEmpty() ? message : location + ": " + message);
+        super(safe(location, message));
         this.location = location;
     }
 
@@ -30,7 +31,7 @@ public final class CfdiParseException extends Cfdi4jException {
      * @param cause underlying cause
      */
     public CfdiParseException(String location, String message, Throwable cause) {
-        super(location.isEmpty() ? message : location + ": " + message, cause);
+        super(safe(location, message), cause);
         this.location = location;
     }
 
@@ -41,5 +42,10 @@ public final class CfdiParseException extends Cfdi4jException {
      */
     public String location() {
         return location;
+    }
+
+    /** The message quotes values of the document: escape control characters and bound its length. */
+    private static String safe(String location, String message) {
+        return SafeText.of(location.isEmpty() ? message : location + ": " + message, 2000);
     }
 }

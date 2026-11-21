@@ -20,6 +20,9 @@ import java.util.Properties;
  */
 public final class Messages {
 
+    /** Characters kept of each text argument; longer values are shortened. */
+    private static final int MAX_ARGUMENT = 300;
+
     private final Properties fallback;
     private final Properties localized;
     private final Locale locale;
@@ -71,7 +74,17 @@ public final class Messages {
      */
     public String format(String code, Object... args) {
         String pattern = localized.getProperty(code, fallback.getProperty(code));
-        return pattern == null ? code : new MessageFormat(pattern, locale).format(args);
+        if (pattern == null) {
+            return code;
+        }
+        Object[] safe = args.clone();
+        for (int i = 0; i < safe.length; i++) {
+            // Text can come from the document: never let it break the message into lines.
+            if (safe[i] instanceof CharSequence text) {
+                safe[i] = SafeText.of(text.toString(), MAX_ARGUMENT);
+            }
+        }
+        return new MessageFormat(pattern, locale).format(safe);
     }
 
     private static Properties read(Opener opener, String fileName) {
