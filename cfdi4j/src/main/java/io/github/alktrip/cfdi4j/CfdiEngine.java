@@ -15,6 +15,7 @@ import io.github.alktrip.cfdi4j.core.validation.Violation;
 import io.github.alktrip.cfdi4j.crypto.Certificates;
 import io.github.alktrip.cfdi4j.crypto.Csd;
 import io.github.alktrip.cfdi4j.crypto.CsdException;
+import io.github.alktrip.cfdi4j.crypto.SatAuthorities;
 import io.github.alktrip.cfdi4j.crypto.Seals;
 import io.github.alktrip.cfdi4j.xml.CadenaOriginal;
 import io.github.alktrip.cfdi4j.xml.CadenaOriginalTimbre;
@@ -52,6 +53,16 @@ public final class CfdiEngine {
     public static final String SELLO_SAT_NO_VERIFICADO = "CFDI4J-105";
     /** Code: SelloSAT does not match the cadena original of the timbre. */
     public static final String SELLO_SAT_INVALIDO = "CFDI4J-106";
+    /**
+     * Code: the certificate of the CFDI was not issued by the configured SAT authorities (error),
+     * or no authorities are configured (warning, not verified).
+     */
+    public static final String CERTIFICADO_NO_EMITIDO_POR_SAT = "CFDI4J-108";
+    /** Code: the document is larger than {@link Builder#maxDocumentSize(int)}. */
+    public static final String DOCUMENTO_DEMASIADO_GRANDE = "CFDI4J-109";
+
+    /** Default of {@link Builder#maxDocumentSize(int)}: 20 MiB. */
+    public static final int DEFAULT_MAX_DOCUMENT_SIZE = 20 * 1024 * 1024;
 
     private static final Locale SPANISH = Locale.forLanguageTag("es-MX");
 
@@ -59,6 +70,8 @@ public final class CfdiEngine {
     private final CfdiSchema schema;
     private final Cfdi40Validator rules;
     private final SatCertificates satCertificates;
+    private final SatAuthorities authorities;
+    private final int maxDocumentSize;
     private final Clock clock;
     private final Messages messages;
 
@@ -72,13 +85,16 @@ public final class CfdiEngine {
         }
         this.rules = validator.build();
         this.satCertificates = b.satCertificates;
+        this.authorities = b.authorities;
+        this.maxDocumentSize = b.maxDocumentSize;
         this.clock = b.clock;
         this.messages = Messages.load(name -> CfdiEngine.class.getResourceAsStream(name), "messages", b.locale);
     }
 
     /**
      * Starts a configuration with the defaults: {@link CfdiXml#defaults()}, no SAT certificates,
-     * the system UTC clock and Spanish messages.
+     * no SAT authorities, documents of at most {@value #DEFAULT_MAX_DOCUMENT_SIZE} bytes, the
+     * system UTC clock and Spanish messages.
      *
      * @return a builder
      */
@@ -118,6 +134,10 @@ public final class CfdiEngine {
      */
     public ValidationResult validate(byte[] document) {
         Objects.requireNonNull(document, "document");
+        Optional<Violation> tooLarge = tooLarge(document);
+        if (tooLarge.isPresent()) {
+            return new ValidationResult(List.of(tooLarge.get()));
+        }
         ValidationResult result = schema.validate(document);
         if (result.has(CfdiSchema.XML_MAL_FORMADO)) {
             return result;
@@ -184,7 +204,10 @@ public final class CfdiEngine {
      * document, so a valid result does not prove that the SAT issued that certificate. Use
      * {@link #validate(byte[])} for the certificate rules (RFC of the emisor, CSD and not e.firma,
      * validity and, with a {@link CertificateStatusProvider}, revocation) and the content rules.
-     * The certificate chain up to the SAT's certification authorities is not validated.
+     * With {@link Builder#certificateAuthorities(SatAuthorities)}, the certificate must also have
+     * been issued by one of those SAT authorities ({@value #CERTIFICADO_NO_EMITIDO_POR_SAT});
+     * without them that check is reported as not verified (warning). Documents larger than
+     * {@link Builder#maxDocumentSize(int)} are not read ({@value #DOCUMENTO_DEMASIADO_GRANDE}).
      *
      * @param document the document
      * @return the result; never throws for a bad document
@@ -192,6 +215,11 @@ public final class CfdiEngine {
     public VerificationResult verify(byte[] document) {
         Objects.requireNonNull(document, "document");
         List<Violation> violations = new ArrayList<>();
+        Optional<Violation> tooLarge = tooLarge(document);
+        if (tooLarge.isPresent()) {
+            violations.add(tooLarge.get());
+            return new VerificationResult(new ValidationResult(violations), Optional.empty(), Optional.empty());
+        }
         Comprobante cfdi;
         String cadena;
         try {
@@ -223,6 +251,7 @@ public final class CfdiEngine {
         if (!Seals.verify(cadena, cfdi.sello().get(), certificate)) {
             violations.add(error(SELLO_INVALIDO, "/cfdi:Comprobante/@Sello"));
         }
+        checkAuthority(certificate, numero, violations);
         cfdi.timbreFiscalDigital().ifPresent(timbre -> verifyTimbre(cfdi, timbre, violations));
         return new VerificationResult(new ValidationResult(violations), parsed, Optional.of(cadena));
     }
@@ -239,6 +268,22 @@ public final class CfdiEngine {
         } else if (!Seals.verify(CadenaOriginalTimbre.defaults().of(timbre), timbre.selloSAT(), sat.get())) {
             violations.add(error(SELLO_SAT_INVALIDO, location + "/@SelloSAT"));
         }
+    }
+
+    private void checkAuthority(X509Certificate certificate, String numero, List<Violation> violations) {
+        String location = "/cfdi:Comprobante/@Certificado";
+        if (authorities == null) {
+            violations.add(new Violation(CERTIFICADO_NO_EMITIDO_POR_SAT, Severity.WARNING, Status.NOT_VERIFIED, location,
+                    messages.format(CERTIFICADO_NO_EMITIDO_POR_SAT + ".no.verificado", numero)));
+        } else if (!authorities.issued(certificate)) {
+            violations.add(error(CERTIFICADO_NO_EMITIDO_POR_SAT, location, numero));
+        }
+    }
+
+    private Optional<Violation> tooLarge(byte[] document) {
+        return document.length <= maxDocumentSize
+                ? Optional.empty()
+                : Optional.of(error(DOCUMENTO_DEMASIADO_GRANDE, "", document.length, maxDocumentSize));
     }
 
     private void requireAttribute(String name, Optional<String> value, List<Violation> violations) {
@@ -259,6 +304,8 @@ public final class CfdiEngine {
     public static final class Builder {
         private CfdiXml xml = CfdiXml.defaults();
         private SatCertificates satCertificates = SatCertificates.none();
+        private SatAuthorities authorities;
+        private int maxDocumentSize = DEFAULT_MAX_DOCUMENT_SIZE;
         // Instants only; rules convert to the time zone of LugarExpedicion (c_CodigoPostal).
         private Clock clock = Clock.systemUTC();
         private Locale locale = SPANISH;
@@ -324,6 +371,35 @@ public final class CfdiEngine {
          */
         public Builder satCertificates(SatCertificates satCertificates) {
             this.satCertificates = Objects.requireNonNull(satCertificates, "satCertificates");
+            return this;
+        }
+
+        /**
+         * Checks in {@link CfdiEngine#verify(byte[])} that the certificate of each CFDI was issued
+         * by one of these authorities, for example {@link SatAuthorities#production()}. Without
+         * them, that check is reported as not verified.
+         *
+         * @param authorities the authorities
+         * @return this builder
+         */
+        public Builder certificateAuthorities(SatAuthorities authorities) {
+            this.authorities = Objects.requireNonNull(authorities, "authorities");
+            return this;
+        }
+
+        /**
+         * Sets the largest document, in bytes, that {@code validate(byte[])} and {@code verify}
+         * read; a larger one is reported as {@value CfdiEngine#DOCUMENTO_DEMASIADO_GRANDE} without
+         * parsing it. This protects services that receive untrusted documents.
+         *
+         * @param bytes the limit, greater than zero
+         * @return this builder
+         */
+        public Builder maxDocumentSize(int bytes) {
+            if (bytes <= 0) {
+                throw new IllegalArgumentException("maxDocumentSize must be greater than zero: " + bytes);
+            }
+            this.maxDocumentSize = bytes;
             return this;
         }
 

@@ -162,3 +162,5 @@ Las reglas que requieren un catálogo grande, la lista de RFC del SAT o el estad
 | CFDI4J-105 | cfdi4j | SelloSAT no verificado sin el certificado del SAT (advertencia). |
 | CFDI4J-106 | cfdi4j | SelloSAT no corresponde al timbre (verificación). |
 | CFDI4J-107 | cfdi4j-core | Una regla no se pudo evaluar con el documento (error; nunca se da por aprobada). |
+| CFDI4J-108 | cfdi4j | El certificado no lo emitió una autoridad del SAT configurada; sin autoridades, advertencia (verificación). |
+| CFDI4J-109 | cfdi4j | El documento excede el tamaño máximo configurado; no se lee (validación y verificación). |

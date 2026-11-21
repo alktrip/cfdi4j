@@ -7,6 +7,7 @@ import io.github.alktrip.cfdi4j.core.validation.Violation;
 import io.github.alktrip.cfdi4j.crypto.Certificates;
 import io.github.alktrip.cfdi4j.xml.CfdiSchema;
 import io.github.alktrip.cfdi4j.xml.CfdiXml;
+import io.github.alktrip.cfdi4j.crypto.SatAuthorities;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -29,7 +30,7 @@ class SealAndVerifyTest {
         assertThat(sealed.toXml()).isEqualTo(new String(sealed.toBytes(), StandardCharsets.UTF_8));
         assertThat(CfdiSchema.defaults().validate(sealed.toBytes()).violations()).isEmpty();
 
-        VerificationResult result = Cfdi4j.verify(sealed.toXml());
+        VerificationResult result = Cfdi4j.configure().certificateAuthorities(SatAuthorities.test()).build().verify(sealed.toXml());
 
         assertThat(result.isValid()).isTrue();
         assertThat(result.result().violations()).isEmpty();

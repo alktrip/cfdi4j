@@ -31,14 +31,14 @@ the SAT source.
 
 ## Using cfdi4j with untrusted documents
 
-- **Limit the size of the input.** The XML parsers reject DOCTYPE declarations and the JDK limits
-  entity expansion, but a document is read into memory whole. Reject oversized requests before
-  calling cfdi4j; real CFDIs are rarely above a few megabytes.
-- **`verify` proves integrity, not authenticity.** It checks the seal against the certificate
-  inside the document. It does not prove that the SAT issued that certificate, and anyone can
-  create a certificate with any RFC. Use `validate` for the certificate rules (RFC, CSD, validity),
-  plug in a `CertificateStatusProvider` for revocation, and treat the certificate chain as not
-  validated.
+- **Limit the size of the input.** `validate(byte[])` and `verify` refuse documents above
+  `maxDocumentSize` (20 MiB by default, `CFDI4J-109`). The lower-level `CfdiXml.parse` and
+  `CfdiSchema` have no limit: bound the input yourself when you call them directly.
+- **Configure the SAT authorities to prove authenticity.** Without them, `verify` proves
+  integrity only, and reports the issuer of the certificate as not verified (`CFDI4J-108`). Use
+  `certificateAuthorities(SatAuthorities.production())`. Never accept production documents with
+  `SatAuthorities.test()`. Use `validate` for the certificate rules (RFC, CSD, validity), and plug
+  in a `CertificateStatusProvider` for revocation.
 - `validate` and `verify` return violations for malformed documents instead of throwing. A
   regression test mutates sealed documents with hostile values (huge numbers, exponents, wrong
   encodings, foreign certificates) to keep it that way. If a rule ever fails unexpectedly, it is

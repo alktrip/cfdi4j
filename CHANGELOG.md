@@ -40,6 +40,10 @@ First public version.
   `ServiceLoader`.
 - `cfdi4j`: the facade `Cfdi4j` (`validate`, `seal`, `verify`) and the configurable `CfdiEngine`,
   including verification of the TimbreFiscalDigital.
+  - The issuer of the certificate can be checked against the bundled SAT certification
+    authorities (`SatAuthorities`, `CFDI4J-108`).
+  - A size limit applies to the documents read by `validate(byte[])` and `verify`
+    (`maxDocumentSize`, 20 MiB by default, `CFDI4J-109`).
 - `cfdi4j-bom` and runnable examples.
 
 [Unreleased]: https://github.com/alktrip/cfdi4j/compare/v0.1.0...HEAD

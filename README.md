@@ -4,7 +4,7 @@
 
 [![CI](https://github.com/alktrip/cfdi4j/actions/workflows/ci.yml/badge.svg)](https://github.com/alktrip/cfdi4j/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
-![Java](https://img.shields.io/badge/java-21%2B-blue.svg)
+![Java](https://img.shields.io/badge/java-25%2B-blue.svg)
 
 Create, validate, seal and verify Mexican electronic invoices (**CFDI 4.0**) in Java.
 
@@ -26,7 +26,7 @@ every rule traced to the public SAT document it comes from.
 
 ## Quick start
 
-Requires Java 21 or later. The coordinates below are those of the first release, `0.1.0`, once it
+Requires Java 25 or later. The coordinates below are those of the first release, `0.1.0`, once it
 is published to Maven Central:
 
 ```xml
@@ -84,6 +84,7 @@ for (Violation v : result.violations()) {
 | Cadena original with the official XSLT 2.0 (Saxon-HE), offline | ✅ supported |
 | Sealing with the CSD `.cer`/`.key` (SHA256withRSA); verification that a CFDI was not altered | ✅ supported |
 | Certificate rules: RFC of the emisor, CSD and not e.firma, validity at `Fecha`, revocation through a port | ✅ supported |
+| Certificate issued by a SAT certification authority (bundled SAT authority certificates) | ✅ supported |
 | Verification of the TimbreFiscalDigital 1.1 (SelloSAT) with the SAT certificate that stamped it | ✅ supported |
 | Business rules of the CFDI 4.0 error matrix: 101 implemented, 10 partial ([report](docs/rules-coverage.md)) | ✅ supported |
 | Complemento de pagos 2.0: model, builder, XML and its error matrix ([report](docs/rules-coverage-pagos20.md)) | ✅ supported |
@@ -116,6 +117,7 @@ warning unless you plug in an implementation of `TaxpayerRegistry` or `Certifica
 
 ```java
 CfdiEngine engine = Cfdi4j.configure()
+    .certificateAuthorities(SatAuthorities.production())   // the SAT issued the certificate
     .taxpayerRegistry(rfc -> myRfcService.find(rfc))
     .certificateStatusProvider((serial, at) -> myOcspClient.status(serial, at))
     .build();
@@ -147,17 +149,20 @@ of Pagos 2.0 is in [ADR 0011](docs/adr/0011-pagos20-arithmetic.md).
 - Property-based tests (jqwik) for amounts, rounding and totals.
 - Round trips (build → XML → parse → equal) and tampering tests (one changed attribute breaks
   the seal).
-- Builds on JDK 21 and 25, with Error Prone and a JaCoCo coverage minimum of 90 %.
+- Builds on JDK 25, with Error Prone and a JaCoCo coverage minimum of 90 %.
 
 ## Limitations
 
 - **Not a PAC.** cfdi4j does not stamp (timbrar) or cancel invoices. A sealed CFDI must still be
   sent to an authorized PAC.
-- `verify` proves **integrity**: the seal matches the content and the certificate inside the
-  document. It does not prove that the SAT issued that certificate. Anyone can create a
-  certificate with any RFC. `validate` adds the certificate rules (RFC, CSD, validity and, with a
-  `CertificateStatusProvider`, revocation). Validating the certificate chain up to the SAT's
-  certification authorities is not done yet.
+- By default `verify` proves **integrity**: the seal matches the content and the certificate
+  inside the document. To also prove that the SAT issued that certificate, configure the SAT
+  authorities. Otherwise that check is reported as not verified:
+  `Cfdi4j.configure().certificateAuthorities(SatAuthorities.production()).build()`. `validate`
+  adds the certificate rules (RFC, CSD, validity and, with a `CertificateStatusProvider`,
+  revocation).
+- `validate(byte[])` and `verify` do not read documents larger than 20 MiB by default
+  (`maxDocumentSize`).
 - Rules that need SAT data are only as good as the adapters you provide. Without them, they are
   reported as not verified.
 - Only Pagos 2.0 and the TimbreFiscalDigital are modeled and validated against their XSD. Other

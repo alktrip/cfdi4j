@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.alktrip.cfdi4j.core.validation.Violation;
 import io.github.alktrip.cfdi4j.xml.CfdiSchema;
+import io.github.alktrip.cfdi4j.crypto.SatAuthorities;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -35,7 +36,8 @@ class ExternalVectorsTest {
     void sealMadeByAnotherToolVerifiesWithOurCadena() throws IOException {
         byte[] xml = download(CFDI40_VALID, CFDI40_VALID_SHA256);
 
-        VerificationResult result = Cfdi4j.verify(xml);
+        // Sealed with a SAT public test CSD: its issuer is one of the test authorities.
+        VerificationResult result = Cfdi4j.configure().certificateAuthorities(SatAuthorities.test()).build().verify(xml);
 
         assertThat(result.failures()).isEmpty();
         // The real PAC certificate is not available: SelloSAT is the only thing not verified.

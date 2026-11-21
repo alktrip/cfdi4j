@@ -32,7 +32,9 @@ class RulesCoverageReportTest {
             new String[] {"CFDI4J-104", "cfdi4j", "SelloCFD del TimbreFiscalDigital no es el Sello (verificación)."},
             new String[] {"CFDI4J-105", "cfdi4j", "SelloSAT no verificado sin el certificado del SAT (advertencia)."},
             new String[] {"CFDI4J-106", "cfdi4j", "SelloSAT no corresponde al timbre (verificación)."},
-            new String[] {"CFDI4J-107", "cfdi4j-core", "Una regla no se pudo evaluar con el documento (error; nunca se da por aprobada)."});
+            new String[] {"CFDI4J-107", "cfdi4j-core", "Una regla no se pudo evaluar con el documento (error; nunca se da por aprobada)."},
+            new String[] {"CFDI4J-108", "cfdi4j", "El certificado no lo emitió una autoridad del SAT configurada; sin autoridades, advertencia (verificación)."},
+            new String[] {"CFDI4J-109", "cfdi4j", "El documento excede el tamaño máximo configurado; no se lee (validación y verificación)."});
 
     static String report() {
         List<Rule> rules = Cfdi40Rules.all();

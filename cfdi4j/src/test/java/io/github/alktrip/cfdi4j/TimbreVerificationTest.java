@@ -9,6 +9,7 @@ import io.github.alktrip.cfdi4j.core.validation.Status;
 import io.github.alktrip.cfdi4j.core.validation.Violation;
 import io.github.alktrip.cfdi4j.xml.CadenaOriginalTimbre;
 import io.github.alktrip.cfdi4j.xml.CfdiXml;
+import io.github.alktrip.cfdi4j.crypto.SatAuthorities;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -37,7 +38,7 @@ class TimbreVerificationTest {
     void stampedCfdiVerifiesBothSeals() {
         byte[] xml = CfdiXml.defaults().toBytes(stamped(null, true));
 
-        VerificationResult result = Cfdi4j.configure().satCertificates(TEST_SAT).build().verify(xml);
+        VerificationResult result = Cfdi4j.configure().satCertificates(TEST_SAT).certificateAuthorities(SatAuthorities.test()).build().verify(xml);
 
         assertThat(result.result().violations()).isEmpty();
         assertThat(result.comprobante().orElseThrow().timbreFiscalDigital()).isPresent();
@@ -53,7 +54,8 @@ class TimbreVerificationTest {
 
     @Test
     void withoutTheSatCertificateSelloSatIsNotVerifiedButTheDocumentIsStillValid() {
-        VerificationResult result = Cfdi4j.verify(CfdiXml.defaults().toBytes(stamped(null, true)));
+        VerificationResult result = Cfdi4j.configure().certificateAuthorities(SatAuthorities.test()).build()
+                .verify(CfdiXml.defaults().toBytes(stamped(null, true)));
 
         assertThat(result.isValid()).isTrue();
         assertThat(result.result().warnings()).singleElement().satisfies(v -> {
@@ -66,7 +68,7 @@ class TimbreVerificationTest {
 
     @Test
     void timbreOfAnotherComprobanteIsDetected() {
-        VerificationResult result = Cfdi4j.configure().satCertificates(TEST_SAT).build()
+        VerificationResult result = Cfdi4j.configure().satCertificates(TEST_SAT).certificateAuthorities(SatAuthorities.test()).build()
                 .verify(CfdiXml.defaults().toBytes(stamped("b3Rybw==", true)));
 
         assertThat(result.failures()).extracting(Violation::code).containsExactly(CfdiEngine.SELLO_CFD_DISTINTO);
@@ -74,7 +76,7 @@ class TimbreVerificationTest {
 
     @Test
     void alteredTimbreIsDetected() {
-        VerificationResult result = Cfdi4j.configure().satCertificates(TEST_SAT).build()
+        VerificationResult result = Cfdi4j.configure().satCertificates(TEST_SAT).certificateAuthorities(SatAuthorities.test()).build()
                 .verify(CfdiXml.defaults().toBytes(stamped(null, false)));
 
         assertThat(result.failures()).extracting(Violation::code).containsExactly(CfdiEngine.SELLO_SAT_INVALIDO);

@@ -4,7 +4,7 @@
 
 [![CI](https://github.com/alktrip/cfdi4j/actions/workflows/ci.yml/badge.svg)](https://github.com/alktrip/cfdi4j/actions/workflows/ci.yml)
 [![Licencia](https://img.shields.io/badge/licencia-Apache--2.0-blue.svg)](LICENSE)
-![Java](https://img.shields.io/badge/java-21%2B-blue.svg)
+![Java](https://img.shields.io/badge/java-25%2B-blue.svg)
 
 Crea, valida, sella y verifica comprobantes fiscales digitales (**CFDI 4.0**) en Java.
 
@@ -29,7 +29,7 @@ SAT del que proviene.
 
 ## Inicio rápido
 
-Requiere Java 21 o posterior. Estas son las coordenadas de la primera versión, `0.1.0`, en cuanto
+Requiere Java 25 o posterior. Estas son las coordenadas de la primera versión, `0.1.0`, en cuanto
 se publique en Maven Central:
 
 ```xml
@@ -88,6 +88,7 @@ for (Violation v : result.violations()) {
 | Cadena original con el XSLT 2.0 oficial (Saxon-HE), sin red | ✅ soportado |
 | Sellado con el `.cer` y `.key` del CSD (SHA256withRSA); verificación de que un CFDI no fue alterado | ✅ soportado |
 | Reglas del certificado: RFC del emisor, CSD y no e.firma, vigencia en `Fecha`, revocación mediante un puerto | ✅ soportado |
+| Certificado emitido por una autoridad certificadora del SAT (certificados de las autoridades del SAT incluidos) | ✅ soportado |
 | Verificación del TimbreFiscalDigital 1.1 (SelloSAT) con el certificado del SAT que timbró | ✅ soportado |
 | Reglas de la matriz de errores CFDI 4.0: 101 implementadas y 10 parciales ([reporte](docs/rules-coverage.md)) | ✅ soportado |
 | Complemento de pagos 2.0: modelo, constructor, XML y su matriz de errores ([reporte](docs/rules-coverage-pagos20.md)) | ✅ soportado |
@@ -120,6 +121,7 @@ certificado fue revocado. cfdi4j nunca las da por buenas en silencio: sin una im
 
 ```java
 CfdiEngine engine = Cfdi4j.configure()
+    .certificateAuthorities(SatAuthorities.production())   // el SAT emitió el certificado
     .taxpayerRegistry(rfc -> miServicioRfc.buscar(rfc))
     .certificateStatusProvider((serie, momento) -> miClienteOcsp.estado(serie, momento))
     .build();
@@ -153,18 +155,21 @@ redondeo de pagos 2.0 está en el [ADR 0011](docs/adr/0011-pagos20-arithmetic.md
 - Pruebas basadas en propiedades (jqwik) para importes, redondeo y totales.
 - Ida y vuelta (construir → XML → leer → igual).
 - Pruebas de alteración: cambiar un solo atributo invalida el sello.
-- Compilación en JDK 21 y 25, con Error Prone y una cobertura mínima de 90 % con JaCoCo.
+- Compilación en JDK 25, con Error Prone y una cobertura mínima de 90 % con JaCoCo.
 
 ## Limitaciones
 
 - **No es un PAC.** cfdi4j no timbra ni cancela comprobantes. Un CFDI sellado se debe enviar a un
   PAC autorizado.
-- `verify` comprueba la **integridad**: que el sello corresponda al contenido y al certificado que
-  viene dentro del documento. No comprueba que ese certificado lo haya emitido el SAT; cualquiera
-  puede crear un certificado con cualquier RFC.
+- Por defecto, `verify` comprueba la **integridad**: que el sello corresponda al contenido y al
+  certificado que viene dentro del documento.
+  - Para comprobar además que ese certificado lo emitió el SAT, configura las autoridades del SAT;
+    si no, esa revisión se reporta como no verificada:
+    `Cfdi4j.configure().certificateAuthorities(SatAuthorities.production()).build()`.
   - `validate` agrega las reglas del certificado: RFC, CSD, vigencia y, con un
     `CertificateStatusProvider`, revocación.
-  - Todavía no se valida la cadena del certificado hasta las autoridades certificadoras del SAT.
+- `validate(byte[])` y `verify` no leen documentos de más de 20 MiB por defecto
+  (`maxDocumentSize`).
 - Las reglas que requieren datos del SAT dependen de los adaptadores que proporciones. Sin ellos se
   reportan como no verificadas.
 - Solo pagos 2.0 y el TimbreFiscalDigital se modelan y se validan contra su XSD. Los demás

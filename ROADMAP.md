@@ -13,9 +13,8 @@ SAT documents.
 - **Differential tests.** Compare the cadena original and the seal with python-satcfdi or another open-source
   implementation in a CI job, on generated documents.
 - **Messages.** Localize the XSD messages, which today come from the JDK in English.
-- **Certificate chain.** Validate that the certificate of a CFDI was issued by the SAT's
-  certification authorities, from their public certificates, so that `verify` can also prove
-  authenticity.
+- **Certificate chain.** `verify` already checks the issuing SAT authority (ADR 0012). It could
+  also check the validity of that authority at `Fecha` and the path up to the SAT root.
 
 ## Complements
 
